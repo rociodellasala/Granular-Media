@@ -25,3 +25,9 @@ hs_err_pid*
 .metadata
 .idea
 .settings
+
+.idea/encodings.xml
+
+.idea/
+
+*.iml
