@@ -1,0 +1,22 @@
+# Considerar sistema en unidades MKS
+
+# MODIFIERS                 UNIT                POSSIBLE VALUES
+
+# PARTICLE MODIFIERS
+maxRadius = 0.02            # m                 # INMODIFICABLE
+minRadius = 0.03            # m                 # INMODIFICABLE
+mass = 0.01                 # kg                # INMODIFICABLE
+
+# UNIVERSE MODIFIERS
+# (debe cumplir que L > W > D)
+quantity = 1
+holeSize = 50               # [D] = m           # [0.15, 0.25]
+large = 1.10                # [L] = m           # [1, 1.5]
+width =                     # [W] = m           # [0.3, 0.4]
+
+# SIMULATION MODIFIERS
+deltaT = 0.1                # s
+deltaT2 =                   # s
+gamma = 70                  # kg/s              # INMODIFICABLE
+kn = 100000                 # N/m               # INMODIFICABLE
+kt = 2                      # N/m               # INMODIFICABLE
