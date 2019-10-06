@@ -39,7 +39,7 @@ public class Configuration {
         return Double.parseDouble(program_configuration.get("minRadius"));
     }
 
-    public dobule getMass() {
+    public double getMass() {
         return Double.parseDouble(program_configuration.get("mass"));
     }
 
@@ -82,4 +82,13 @@ public class Configuration {
     public double getkt() {
         return Double.parseDouble(program_configuration.get("kt"));
     }
+
+    public double getg() {
+        return Double.parseDouble(program_configuration.get("g"));
+    }
+
+    public double getmu() {
+        return Double.parseDouble(program_configuration.get("mu"));
+    }
+
 }

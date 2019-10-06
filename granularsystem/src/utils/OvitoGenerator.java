@@ -4,8 +4,6 @@ import java.awt.Color;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -15,29 +13,26 @@ import models.Particle;
 import simulation.Simulation;
 
 public class OvitoGenerator {
-    static FileWriter dataWriter;
-    static FileWriter informationWriter;
-    static FileWriter energyWriter;
-    static FileWriter speedWriter;
     private static DecimalFormat df2 = new DecimalFormat("#.##");
-
-    static List<Double> mechEnergyEnergy;
-    static List<Double> mechEnergyTime;
-    static List<String> informationLeft;
-    static List<String> informationRight;
-    static List<Double> informationTime;
-    static List<String> speedValues;
+    static FileWriter dataWriter;
 
     public static void initializeOvito() {
-
+        File data = createFile("./data.txt");
+        dataWriter = openWriter(data);
     }
 
     public static void closeFiles() {
-
+        closeWriter(dataWriter);
     }
 
     public static void recopilateData(Simulation simulation) {
-
+        List<double[]> currentPositions = new ArrayList<>();
+        List<Particle> walls = new LinkedList<>();
+        recopilatePositions(simulation.getUniverse().getParticles(), currentPositions);
+        for(Particle p: simulation.getUniverse().getWalls())
+            walls.add(p);
+        recopilatePositions(walls, currentPositions);
+        generateInput(currentPositions);
     }
 
     public static void recopilatePositions(List<Particle> particles, List<double[]> currentPositions) {
@@ -51,7 +46,7 @@ public class OvitoGenerator {
         Color color;
 
         for (Particle p : particles) {
-            id = p.getId();
+            id = p.getID();
             x = p.getPositionX();
             y = p.getPositionY();
             ra = p.getRadius();
@@ -66,7 +61,7 @@ public class OvitoGenerator {
                 b = Color.white.getBlue();
             }
 
-            double currentParticle[] = {id,x,y,ra,r,g,b};
+            double[] currentParticle = {id, x, y, ra, r, g, b};
             currentPositions.add(currentParticle);
         }
     }
@@ -124,74 +119,6 @@ public class OvitoGenerator {
         return writer;
     }
 
-    public static void generateFiles() {
-
-        //Information
-        for(Double s : informationTime) {
-            try {
-                informationWriter.write(s + ",");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        try {
-            informationWriter.write("\n");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        for(String s : informationLeft) {
-            try {
-                informationWriter.write(s + ",");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        try {
-            informationWriter.write("\n");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        for(String s : informationRight) {
-            try {
-                informationWriter.write(s + ",");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-
-        //Energy
-        for(Double s : mechEnergyTime) {
-            try {
-                energyWriter.write(s + ",");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        try {
-            energyWriter.write("\n");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        for(Double d : mechEnergyEnergy) {
-            try {
-                energyWriter.write(d + ",");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        //Speed
-        for(String s : speedValues) {
-            try {
-                speedWriter.write(s + ",");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-
     public static void closeWriter(FileWriter writer) {
         try {
             writer.close();
@@ -213,6 +140,7 @@ public class OvitoGenerator {
             e.printStackTrace();
         }
     }
+
 
 
 }
