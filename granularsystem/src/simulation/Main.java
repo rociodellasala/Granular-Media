@@ -7,7 +7,6 @@ import utils.OvitoGenerator;
 
 public class Main {
 
-
     public static void main(String[] args) {
         Configuration config = new Configuration();
         Simulation simulation;
@@ -18,17 +17,14 @@ public class Main {
         universe = new Universe(config.getL(), config.getW(), config.getHoleSize());
         simulation = new Simulation(universe);
 
-        ForceCalculator fc = new ForceCalculator(config.getL(), config.getW(), config.getHoleSize(), config.getGamma(),
-                config.getkn(), config.getkt(), config.getg(), config.getmu());
         NeighbourCalculator ncalculator = new NeighbourCalculator(config.getL(), config.getW(),
                 interactionRadio, config.getMaxRadius());
 
         OvitoGenerator.initializeOvito();
 
         simulation.startUniverse(config.getQuantity(), config.getMaxRadius(), config.getMinRadius(), config.getMass());
-        simulation.simulate(fc, config.getDeltaT(), config.getDeltaT2(), ncalculator);
+        simulation.simulate(config.getDeltaT(), config.getDeltaT2(), ncalculator);
 
-        OvitoGenerator.generateFiles();
         OvitoGenerator.closeFiles();
     }
 

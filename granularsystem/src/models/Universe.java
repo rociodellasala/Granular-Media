@@ -6,7 +6,6 @@ import java.util.Set;
 public class Universe {
 
     private Set<Particle> particles;
-    private Set<Particle> walls;
     private double lengthX;
     private double lengthY;
     private double holeSize;
@@ -15,7 +14,6 @@ public class Universe {
         this.setLengthX(lengthX);
         this.setLengthY(lengthY);
         setParticles(new HashSet<>());
-        setWalls(new HashSet<>());
         this.setHoleSize(holeSize);
     }
 
@@ -27,12 +25,9 @@ public class Universe {
         this.particles = particles;
     }
 
-    public Set<Particle> getWalls() {
-        return walls;
-    }
-
-    public void setWalls(Set<Particle> walls) {
-        this.walls = walls;
+    public void setNewParticles(Set<Particle> particles) {
+        this.particles.clear();
+        this.particles = particles;
     }
 
     public double getLengthX() {

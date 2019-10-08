@@ -71,24 +71,4 @@ public class Configuration {
         return Double.parseDouble(program_configuration.get("deltaT2"));
     }
 
-    public double getGamma() {
-        return Double.parseDouble(program_configuration.get("gamma"));
-    }
-
-    public double getkn() {
-        return Double.parseDouble(program_configuration.get("kn"));
-    }
-
-    public double getkt() {
-        return Double.parseDouble(program_configuration.get("kt"));
-    }
-
-    public double getg() {
-        return Double.parseDouble(program_configuration.get("g"));
-    }
-
-    public double getmu() {
-        return Double.parseDouble(program_configuration.get("mu"));
-    }
-
 }

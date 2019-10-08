@@ -2,86 +2,86 @@ package simulation;
 
 import models.Particle;
 import models.Vector2D;
-import utils.NeighbourCalculator;
 
-import java.util.*;
+import java.util.Set;
 
 public class VerletIntegrationMethod {
     private double deltaT;
-    private ForceCalculator forceCalculator;
-    private NeighbourCalculator neighbourCalculator;
-    private Map<Particle, Set<Particle>> neighbours;
 
-    public VerletIntegrationMethod(ForceCalculator fc, double deltaT, Set<Particle> particles, NeighbourCalculator nc) {
+    public VerletIntegrationMethod(double deltaT) {
         this.deltaT = deltaT;
-        this.forceCalculator = fc;
-        this.initializeNeighbours(particles);
-        this.neighbourCalculator = nc;
     }
 
-    private void initializeNeighbours( Set<Particle> particles) {
-        this.neighbours = new HashMap<>();
-        for(Particle p : particles){
-            neighbours.put(p, Collections.emptySet());
+    public void integrate(Set<Particle> particles) {
+        for (Particle particle : particles) {
+            if (particle.getPreviousPosition() == null) {
+                System.out.println("aca");
+                nextWithEuler(particle);
+            } else {
+                System.out.println("comun");
+                updateParticleWithVerlet(particle);
+            }
         }
     }
 
-    public void updateParticle(Set<Particle> particles, boolean first) {
-        if(first) {
-            calculateNextPositionEuler(particles);
-            calculateNextVelocityEuler(particles);
-        } else {
-            neighbours = neighbourCalculator.getNeighbours(particles);
-            calculateNextPosition(particles);
-            calculateNextVelocity(particles);
-        }
+    private void nextWithEuler(Particle particle) {
+        updateNextPosition(particle);
+        updateNextSpeed(particle);
+    }
+
+    private void updateNextPosition(Particle p) {
+        Vector2D nextPositionEuler;
+        Vector2D currentR = p.getPosition();
+        Vector2D currentV = p.getSpeed();
+        Vector2D currentF = p.getForce();
+
+        p.setPreviousPosition(p.getPosition());
+
+        nextPositionEuler = currentR.add(currentV.getMultiplied(deltaT)).
+                add(currentF.getMultiplied((deltaT*deltaT)/2 * p.getMass()));
+        p.setPosition(nextPositionEuler);
+    }
+
+    private void updateNextSpeed(Particle p) {
+        Vector2D nextSpeedEuler;
+        Vector2D currentV = p.getSpeed();
+        Vector2D currentF = p.getForce();
+
+        p.setPreviousSpeed(p.getSpeed());
+
+        nextSpeedEuler = currentV.add(currentF.getMultiplied(deltaT/p.getMass()));
+        p.setSpeed(nextSpeedEuler);
+    }
+
+    private void updateParticleWithVerlet(Particle particle) {
+        Vector2D previous = particle.getPreviousPosition();
+        updateVerletPosition(particle);
+        updateVerletSpeed(particle, previous);
 
     }
 
+    private void updateVerletPosition(Particle p) {
+        Vector2D nextPosition;
+        Vector2D currentR = p.getPosition();
+        Vector2D currentF = p.getForce();
+        Vector2D previousR = p.getPreviousPosition();
 
+        nextPosition = currentR.getMultiplied(2).subtract(previousR).add(currentF
+                .getMultiplied((deltaT*deltaT)/2 * p.getMass()));
 
-    private void calculateNextPosition(Set<Particle> particles) {
-        for (Particle p : particles) {
-            Vector2D r = p.getPosition();
-            Vector2D prevR = p.getPreviousPosition();
-            Vector2D f = forceCalculator.calculate(p, neighbours.get(p));
-
-            Vector2D nextPosition = r.scalarMultiply(2).subtract(prevR).add(f.scalarMultiply((deltaT*deltaT/p.getMass())));
-
-            p.setPosition(nextPosition);
-        }
+        p.setPreviousPosition(p.getPosition());
+        p.setPosition(nextPosition);
     }
 
-    private void calculateNextVelocity(Set<Particle> particles) {
-        for(Particle p : particles) {
-            Vector2D nextR = p.getPosition();
-            Vector2D prevR = p.getPreviousPosition();
+    private void updateVerletSpeed(Particle p, Vector2D previousPos) {
+        Vector2D nextSpeed;
+        Vector2D nextR = p.getPosition();
+        Vector2D previousR = previousPos;
 
-            Vector2D nextVelocity = nextR.subtract(prevR).getDivided(2 * deltaT);
+        nextSpeed = nextR.subtract(previousR).getDivided(2 * deltaT);
 
-            p.setSpeed(nextVelocity);
-        }
-    }
-
-    private void calculateNextPositionEuler(Set<Particle> particles) {
-        for(Particle p : particles) {
-            Vector2D r = p.getPosition();
-            Vector2D v = p.getSpeed();
-            Vector2D f = forceCalculator.calculate(p, neighbours.get(p));
-
-            Vector2D nextPositionEuler = r.add(v.getMultiplied(deltaT)).add(f.getMultiplied((deltaT*deltaT)/(2 * p.getMass())));
-            p.setPosition(nextPositionEuler);
-        }
-    }
-
-    private void calculateNextVelocityEuler(Set<Particle> particles) {
-        for(Particle p : particles) {
-            Vector2D v = p.getSpeed();
-            Vector2D f = forceCalculator.calculate(p, neighbours.get(p));
-
-            Vector2D nextVelocityEuler = v.add(f.getMultiplied(deltaT/p.getMass()));
-            p.setSpeed(nextVelocityEuler);
-        }
+        p.setPreviousSpeed(p.getSpeed());
+        p.setSpeed(nextSpeed);
     }
 
 }

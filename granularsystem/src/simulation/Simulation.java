@@ -7,27 +7,38 @@ import utils.NeighbourCalculator;
 import utils.OvitoGenerator;
 
 import java.awt.*;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 public class Simulation {
 
-    private Universe universe;
-    private int steps;
+    private final static double g = 9.8;                // m/s^2
+    private final static double kn = Math.pow(10,5);    // N/m
+    private final static double kt = 2 * kn;            // N/m
+    private final static double mu = 0.1;               //
+    private final static double gamma = 70;             // kg/s
 
+    private double L;
+    private double W;
+    private double D;
+
+    private Universe universe;
     private double time;
     private double elapsedTime;
     private VerletIntegrationMethod verlet;
-    private NeighbourCalculator ncalculator;
 
     public Simulation(Universe universe) {
         this.universe = universe;
-        steps = 0;
-        time = 0.0;
+        time = 100;  //config!!
         elapsedTime = 0.0;
+        this.L = universe.getLengthY();
+        this.W = universe.getLengthX();
+        this.D = universe.getHoleSize();
     }
 
     public void startUniverse(int quantity, double minRadius, double maxRadius, double mass) {
-        initializeWalls(minRadius, mass);
         initializeParticles(quantity, minRadius, maxRadius, mass);
     }
 
@@ -35,109 +46,34 @@ public class Simulation {
         return universe;
     }
 
-    public void initializeWalls(double minRadius, double mass) {
-        initializeCorner(minRadius, mass);
-        initializeInnerWalls(minRadius, mass);
-    }
-
-    public void initializeCorner(double minRadius, double mass) {
-        double radius = minRadius;
-        this.universe.getWalls().add(setInitialCorner(this.universe.getLengthX(), 0.0, mass, radius, Color.WHITE));
-        this.universe.getWalls().add(setInitialCorner(0.0, 0.0, mass, radius, Color.WHITE));
-        this.universe.getWalls().add(setInitialCorner(0.0, this.universe.getLengthY(), mass, radius, Color.WHITE));
-        this.universe.getWalls().add(setInitialCorner(this.universe.getLengthX(), this.universe.getLengthY(), mass, radius, Color.WHITE));
-    }
-
-    public Particle setInitialCorner(double positionX, double positionY, double mass, double radius, Color color) {
-        Vector2D position = new Vector2D(positionX,positionY);
-        Vector2D speed = new Vector2D(0.0,0.0);
-        Vector2D force = new Vector2D(0.0, 0.0);
-
-        return new Particle(position, speed, force, mass, radius, color);
-    }
-
-
-    public void initializeInnerWalls(double minRadius, double mass) {
-        Particle wall;
-        double l = universe.getLengthX();
-        double w = universe.getLengthY();
-        double holesize = universe.getHoleSize();
-
-        /* TAPA */
-        double quantity = w / minRadius;
-        double lastPosition = 0 + minRadius;
-
-        for(int i = 0 ; i < quantity; i++) {
-                wall = new Particle(new Vector2D(lastPosition, l), mass, minRadius, Color.WHITE);
-                this.universe.getWalls().add(wall);
-                lastPosition += minRadius;
-        }
-
-
-        /* DONDE ESTA HOLE SIZE */
-        quantity = w / minRadius - holesize;
-        double middle = quantity / 2;
-        lastPosition = 0 + minRadius;
-
-        for(int i = 0 ; i < quantity; i++) {
-            wall = new Particle(new Vector2D(lastPosition, 0), mass, minRadius, Color.WHITE);
-            this.universe.getWalls().add(wall);
-            if(lastPosition >= middle){
-                lastPosition += middle + minRadius;
-            } else {
-                lastPosition += minRadius;
-            }
-        }
-
-
-        /* PAREDES */
-        quantity = l / minRadius;
-        lastPosition = 0 + minRadius;
-
-        for(int i = 0 ; i < quantity; i++) {
-            wall = new Particle(new Vector2D(0, lastPosition), mass, minRadius, Color.WHITE);
-            this.universe.getWalls().add(wall);
-            wall = new Particle(new Vector2D(w, lastPosition), mass, minRadius, Color.WHITE);
-            this.universe.getWalls().add(wall);
-            lastPosition += minRadius;
-        }
-
-    }
 
     public void initializeParticles(int quantity, double minRadius, double maxRadius, double mass) {
         Particle particle;
         double positionX;
         double positionY;
         double radius;
-        double l = universe.getLengthX();
-        double w = universe.getLengthY();
 
-        boolean check = false;
+        boolean check;
 
-        for(int i = 0; i < quantity; i++ ){
+        for (int i = 0; i < quantity; i++) {
             do {
-                positionX = getRandomDouble(0 + minRadius, w - minRadius);
-                positionY = getRandomDouble(0 + minRadius, l - minRadius);
+                positionX = getRandomDouble(0, W);
+                positionY = getRandomDouble(0, L);
                 radius = getRandomDouble(minRadius, maxRadius);
-                check = checkSuperposition(positionX, positionY, radius, w, l);
-            } while(!check);
-            particle = new Particle(new Vector2D(positionX,positionY), mass, radius, Color.BLUE);
+                check = checkSuperposition(positionX, positionY, radius, W, L);
+            } while (!check);
+            particle = new Particle(new Vector2D(positionX, positionY), mass, radius, Color.BLUE);
             this.universe.getParticles().add(particle);
         }
     }
 
     private boolean checkSuperposition(double positionX, double positionY, double radio, double universeLengthX, double universeLengthY) {
-        for(Particle particle : this.universe.getParticles()) {
-            if(!check(particle, positionX, positionY, radio))
+        for (Particle particle : this.universe.getParticles()) {
+            if (!check(particle, positionX, positionY, radio))
                 return false;
         }
 
-        for(Particle particle: this.universe.getWalls()) {
-            if(!check(particle, positionX, positionY, radio))
-                return false;
-        }
-
-        if(positionX + radio > universeLengthX || positionX - radio < 0.0)
+        if (positionX + radio > universeLengthX || positionX - radio < 0.0)
             return false;
 
         return !(positionY + radio > universeLengthY) && !(positionY - radio < 0.0);
@@ -148,8 +84,8 @@ public class Simulation {
         double distanceY;
         double radios;
 
-        distanceX = Math.pow(positionX - particle.getPositionX(), 2);
-        distanceY = Math.pow(positionY - particle.getPositionY(), 2);
+        distanceX = Math.pow(positionX - particle.getPosition().getX(), 2);
+        distanceY = Math.pow(positionY - particle.getPosition().getY(), 2);
         radios = Math.pow(radio + particle.getRadius(), 2);
         return !(distanceX + distanceY <= radios);
     }
@@ -160,28 +96,178 @@ public class Simulation {
         return randomValue;
     }
 
-
-    public void simulate(ForceCalculator fc, double deltaT, double deltaT2, NeighbourCalculator neighbourCalculator){
+    public void simulate(double deltaT, double deltaT2, NeighbourCalculator neighbourCalculator) {
         int iterations = 0;
-        verlet = new VerletIntegrationMethod(fc, deltaT, universe.getParticles(), neighbourCalculator);
+        verlet = new VerletIntegrationMethod(deltaT);
 
         do {
-            verlet.updateParticle(universe.getParticles(), iterations == 0);
-            iterations++;
-            if(iterations == 0 || iterations % deltaT2 == 0) {
+            if (iterations == 0 || iterations % deltaT2 == 0) {
                 OvitoGenerator.recopilateData(this);
             }
+            checkParticleInteractions(neighbourCalculator);
+            iterations++;
             elapsedTime += deltaT;
-        } while(!isConditionComplete(elapsedTime));
+        } while(isConditionNotComplete(elapsedTime));
 
     }
 
+    public boolean isConditionNotComplete(double elapsedTime) {
+        return (elapsedTime <= time);
+    }
 
-    public boolean isConditionComplete(double elapsedTime) {
-        if(elapsedTime <= time) {
-            return false;
+    private void checkParticleInteractions(NeighbourCalculator neighbourCalculator) {
+        Map<Particle, Set<Particle>> map = neighbourCalculator.getNeighbours(universe.getParticles());
+
+        for (Particle p : this.universe.getParticles()) {
+            Set<Particle> neighbours = map.get(p);
+            p.setForce(calculateForce(p, neighbours));
+            verlet.integrate(universe.getParticles());
+            removeFallenParticles();
         }
 
-        return true;
+        // puedo estar seteando fuerzas y posiciones del mismo conjunto q estoy recorriendo
+        // podria tener un set de todas mis particulas a eliminar y las nuevas a agregar y cuando finalizo de recorrer
+        // hago los cambios
     }
+
+    private Vector2D calculateForce(Particle p, Set<Particle> neighbours) {
+        Vector2D force = new Vector2D(0,- p.getMass() * g);
+        double overlap;
+        double xDistanceFraction, yDistanceFraction, distance;
+        double forceX = 0;
+        double forceY = 0;
+        double normalForce, tangencialForce;
+
+        for(Particle neighbour : neighbours) {
+            if(!p.equals(neighbour)) {
+                overlap = overlapping(p, neighbour);
+
+                if (overlap > 0) {
+                    distance = neighbour.getDistance(p);
+                    xDistanceFraction = (neighbour.getPosition().getX() - p.getPosition().getX())/distance;
+                    yDistanceFraction = (neighbour.getPosition().getY() - p.getPosition().getY())/distance;
+                    Vector2D normalVector = new Vector2D(yDistanceFraction, -xDistanceFraction);
+                    double relativeVelocity = getRelativeVelocity(p, neighbour , normalVector);
+
+                    normalForce = -kn * overlap;
+                    tangencialForce = -kt * overlap * relativeVelocity;
+
+                    forceX += normalForce * xDistanceFraction + tangencialForce * (-yDistanceFraction);
+                    forceY += normalForce * yDistanceFraction + tangencialForce * xDistanceFraction;
+                }
+            }
+        }
+
+        force = force.add(new Vector2D(forceX, forceY));
+        force.add(calculateForceFromWalls(force, p));
+
+        return force;
+    }
+
+    private static double getRelativeVelocity(Particle one, Particle another, Vector2D tan) {
+        Vector2D v = another.getSpeed().subtract(one.getSpeed());
+        return v.getX() * tan.getX() + v.getY() * tan.getY();
+    }
+
+    public double overlapping(Particle i, Particle j){
+        double result = i.getRadius() + j.getRadius() - i.getDistance(j);
+        return result > 0 ? result : 0;
+    }
+
+    private Vector2D calculateForceFromWalls(Vector2D force, Particle p) {
+        return force.add(getWallForces(p));
+    }
+
+    private Vector2D getWallForces(Particle p) {
+        Vector2D right = rightWall(p);
+        Vector2D left = leftWall(p);
+        Vector2D horizontal = horizontalWall(p);
+
+        Vector2D total = right.add(left).add(horizontal);
+
+        return total;
+    }
+
+    private Vector2D horizontalWall(Particle p){
+        Vector2D force = Vector2D.ZERO;
+        double overlap = p.getRadius() - p.getPosition().getX();
+
+        if (overlap > 0){
+            double relativeVelocity = -p.getSpeed().getY();
+            Vector2D forceNormalAndTan = getNormalAndTangencialVector(overlap, relativeVelocity);
+            force = new Vector2D(-forceNormalAndTan.getX(), -forceNormalAndTan.getY());
+        }
+
+        return force;
+    }
+
+    private Vector2D leftWall(Particle p){
+        Vector2D force = Vector2D.ZERO;
+        double overlap = p.getRadius() - p.getPosition().getX();
+
+        if (overlap > 0){
+            double relativeVelocity = p.getSpeed().getY();
+            Vector2D forceNormalAndTan = getNormalAndTangencialVector(overlap, relativeVelocity);
+            force = new Vector2D(-forceNormalAndTan.getX(), forceNormalAndTan.getY());
+        }
+
+        return force;
+    }
+
+    private Vector2D rightWall(Particle p) {
+        Vector2D force = Vector2D.ZERO;
+        double overlap = p.getRadius() - W + p.getPosition().getX();
+
+        if (overlap > 0){
+            double relativeVelocity = -p.getSpeed().getY();
+            Vector2D forceNormalAndTan = getNormalAndTangencialVector(overlap, relativeVelocity);
+            force = new Vector2D(forceNormalAndTan.getX(), -forceNormalAndTan.getY());
+        }
+
+        return force;
+    }
+
+    private Vector2D getNormalAndTangencialVector(double overlapSize, double relativeVelocity){
+        return new Vector2D(
+                -kn * overlapSize,
+                -kt * overlapSize * relativeVelocity
+        );
+    }
+
+    private void addFallenParticles(Particle old, Set<Particle> newParticles) {
+        Particle p;
+        double positionX, positionY;
+        int oldId = old.getID();
+        double oldMass = old.getMass();
+        double oldRadius = old.getRadius();
+        Color oldColor = old.getColor();
+        newParticles.remove(old);
+        boolean check;
+        Vector2D position;
+
+        do {
+            positionX = getRandomDouble(0, W);
+            positionY = getRandomDouble(L - oldRadius, L - L/10);
+            position = new Vector2D(positionX, positionY);
+            check = checkSuperposition(positionX, positionY, oldRadius, W, L);
+        } while (!check);
+
+        p = new Particle(position, oldMass, oldRadius, oldColor, oldId);
+        newParticles.add(p);
+    }
+
+    private void removeFallenParticles() {
+        Set<Particle> particles = new HashSet<>();
+        for (Particle p : universe.getParticles()) {
+            if(p.getPosition().getY() < (-L/10)) {
+                particles.add(p);
+            } else {
+                System.out.println("SALIO");
+                addFallenParticles(p, particles);
+            }
+        }
+
+        universe.setNewParticles(particles);
+    }
+
 }

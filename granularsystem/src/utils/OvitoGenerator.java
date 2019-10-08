@@ -8,6 +8,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import models.Particle;
 import simulation.Simulation;
@@ -27,15 +28,11 @@ public class OvitoGenerator {
 
     public static void recopilateData(Simulation simulation) {
         List<double[]> currentPositions = new ArrayList<>();
-        List<Particle> walls = new LinkedList<>();
         recopilatePositions(simulation.getUniverse().getParticles(), currentPositions);
-        for(Particle p: simulation.getUniverse().getWalls())
-            walls.add(p);
-        recopilatePositions(walls, currentPositions);
         generateInput(currentPositions);
     }
 
-    public static void recopilatePositions(List<Particle> particles, List<double[]> currentPositions) {
+    public static void recopilatePositions(Set<Particle> particles, List<double[]> currentPositions) {
         double id;
         double x;
         double y;
@@ -47,10 +44,10 @@ public class OvitoGenerator {
 
         for (Particle p : particles) {
             id = p.getID();
-            x = p.getPositionX();
-            y = p.getPositionY();
+            x = p.getPosition().getX();
+            y = p.getPosition().getY();
             ra = p.getRadius();
-            color = getColorBySpeed(p.getSpeedX(),p.getSpeedY());
+            color = getColorBySpeed(p.getSpeed().getX(),p.getSpeed().getY());
             r = color.getRed();
             g = color.getGreen();
             b = color.getBlue();
