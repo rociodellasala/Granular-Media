@@ -6,6 +6,7 @@ import java.text.DecimalFormat;
 public class Particle {
 
     private static int ID = 0;
+    private static int WALL_ID = -1;
     private int id;
 
     private Vector2D previousPosition = null;
@@ -26,7 +27,10 @@ public class Particle {
         this.setRadius(radius);
         this.setMass(mass);
         this.setColor(color);
-        this.setId(ID++);
+        if(color.equals(Color.WHITE))
+            this.setId(WALL_ID--);
+        else
+            this.setId(ID++);
     }
 
     public Particle(Vector2D position, double mass, double radius, Color color, int id) {
@@ -128,23 +132,12 @@ public class Particle {
 
     @Override
     public String toString() {
-        DecimalFormat df = new DecimalFormat("###.0000000000");
-        return df.format(position.getX()) + " "
-                + df.format(position.getY()) + " "
-                + df.format(speed.getX()) + " "
-                + df.format(speed.getY()) + " "
-                + radius + " "
-                + mass + " ";
+         return position.getX() + " "
+                + position.getY() + " "
+                + id;
     }
 
-    public double getDistance(Particle second) {
-        double firstX = this.getPosition().getX();
-        double secondX = second.getPosition().getX();
-        double firstY = this.getPosition().getY();
-        double secondY = second.getPosition().getY();
-        double distance;
-
-        distance = Math.sqrt(Math.pow(firstX - secondX,2) + Math.pow(firstY - secondY,2));
-        return distance;
+    public double getDistance(Particle p){
+        return this.getPosition().distance(p.getPosition()).getModule();
     }
 }

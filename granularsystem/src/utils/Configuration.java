@@ -61,6 +61,10 @@ public class Configuration {
         return Double.parseDouble(program_configuration.get("width"));
     }
 
+    public String getQuantityMethod() {
+        return program_configuration.get("quantity_method");
+    }
+
     /* Getters for simulation modifiers */
 
     public double getDeltaT() {

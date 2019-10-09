@@ -5,10 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import models.Particle;
 import simulation.Simulation;
@@ -28,7 +25,11 @@ public class OvitoGenerator {
 
     public static void recopilateData(Simulation simulation) {
         List<double[]> currentPositions = new ArrayList<>();
+        Set<Particle> walls = new HashSet<>();
         recopilatePositions(simulation.getUniverse().getParticles(), currentPositions);
+        for(Particle p: simulation.getUniverse().getWalls())
+            walls.add(p);
+        recopilatePositions(walls, currentPositions);
         generateInput(currentPositions);
     }
 
@@ -64,7 +65,7 @@ public class OvitoGenerator {
     }
 
     private static Color getColorBySpeed(double speedX, double speedY) {
-        Color color = null;
+        Color color;
         double speed;
 
         speed = Math.sqrt( Math.pow(speedX, 2) + Math.pow(speedY, 2));

@@ -8,18 +8,18 @@ import java.util.Set;
 public class VerletIntegrationMethod {
     private double deltaT;
 
+
     public VerletIntegrationMethod(double deltaT) {
         this.deltaT = deltaT;
+
     }
 
     public void integrate(Set<Particle> particles) {
-        for (Particle particle : particles) {
-            if (particle.getPreviousPosition() == null) {
-                System.out.println("aca");
-                nextWithEuler(particle);
+        for (Particle p : particles) {
+            if (p.getPreviousPosition() == null) {
+                nextWithEuler(p);
             } else {
-                System.out.println("comun");
-                updateParticleWithVerlet(particle);
+                updateParticleWithVerlet(p);
             }
         }
     }
@@ -39,6 +39,7 @@ public class VerletIntegrationMethod {
 
         nextPositionEuler = currentR.add(currentV.getMultiplied(deltaT)).
                 add(currentF.getMultiplied((deltaT*deltaT)/2 * p.getMass()));
+
         p.setPosition(nextPositionEuler);
     }
 

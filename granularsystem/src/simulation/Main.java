@@ -22,7 +22,8 @@ public class Main {
 
         OvitoGenerator.initializeOvito();
 
-        simulation.startUniverse(config.getQuantity(), config.getMaxRadius(), config.getMinRadius(), config.getMass());
+        simulation.startUniverse(config.getQuantityMethod(), config.getQuantity(), config.getMaxRadius(),
+                config.getMinRadius(), config.getMass());
         simulation.simulate(config.getDeltaT(), config.getDeltaT2(), ncalculator);
 
         OvitoGenerator.closeFiles();
