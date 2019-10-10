@@ -7,9 +7,6 @@ import java.util.Set;
 
 public class ForceCalculator {
 
-    private final static double g = 9.8;                // m/s^2
-    private final static double kn = Math.pow(10,5);    // N/m
-    private final static double kt = 2 * kn;            // N/m
     private double L;
     private double W;
     private double D;
@@ -21,7 +18,7 @@ public class ForceCalculator {
     }
 
     public Vector2D calculateForce(Particle p, Set<Particle> neighbours) {
-        Vector2D force = new Vector2D(0,- p.getMass() * g);
+        Vector2D force = new Vector2D(0,- p.getMass() * Const.g);
         double overlap;
         double xDistanceFraction, yDistanceFraction, distance;
         double forceX = 0;
@@ -40,8 +37,8 @@ public class ForceCalculator {
                     Vector2D normalVector = new Vector2D(yDistanceFraction, -xDistanceFraction);
                     double relativeVelocity = getRelativeVelocity(p, neighbour , normalVector);
 
-                    normalForce = -kn * overlap;
-                    tangencialForce = -kt * overlap * relativeVelocity;
+                    normalForce = -Const.kn * overlap;
+                    tangencialForce = -Const.kt * overlap * relativeVelocity;
 
                     forceX += normalForce * xDistanceFraction + tangencialForce * (-yDistanceFraction);
                     forceY += normalForce * yDistanceFraction + tangencialForce * xDistanceFraction;
@@ -57,8 +54,8 @@ public class ForceCalculator {
 
     private Vector2D getNormalAndTangencialVector(double overlap, double relativeVelocity){
         return new Vector2D(
-                -kn * overlap,
-                -kt * overlap * relativeVelocity
+                -Const.kn * overlap,
+                -Const.kt * overlap * relativeVelocity
         );
     }
 

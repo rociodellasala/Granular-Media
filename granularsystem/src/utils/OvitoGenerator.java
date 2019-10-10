@@ -98,9 +98,9 @@ public class OvitoGenerator {
         File file = new File(name);
         try {
             file.createNewFile();
-            System.out.println("File is created!");
+            System.out.println("El archivo de output " + name + " ha sido creado");
         } catch (IOException e) {
-            System.out.println("File could not be created");
+            System.out.println("El archivo de output " + name + " no se ha podido crear");
         }
         return file;
     }

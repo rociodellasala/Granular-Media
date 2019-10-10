@@ -2,19 +2,15 @@
 
 # MODIFIERS
 
-# PARTICLE MODIFIERS
-maxRadius = 0.015
-minRadius = 0.01
-mass = 0.01
-
 # UNIVERSE MODIFIERS
-# (debe cumplir que L(Y) > W(X) > D)
-quantity_method = max
-quantity = 1
-holeSize = 0.25
-large = 1.10
-width = 0.4
+quantityMethod = max
+quantity = 40
+interactionRadio = 0.015
+D = 0.25
+L = 1.10
+W = 0.4
 
 # SIMULATION MODIFIERS
-deltaT = 0.00001
-deltaT2 = 0.0005
+deltaT = 0.00005
+deltaT2 = 0.5
+totalTime = 70

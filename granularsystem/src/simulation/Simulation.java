@@ -3,21 +3,18 @@ package simulation;
 import models.Particle;
 import models.Universe;
 import models.Vector2D;
+import utils.Const;
 import utils.ForceCalculator;
 import utils.NeighbourCalculator;
 import utils.OvitoGenerator;
 
 import java.awt.*;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
 public class Simulation {
 
-    private final static double g = 9.8;                // m/s^2
-    private final static double kn = Math.pow(10,5);    // N/m
-    private final static double MAX_TRIES = Math.pow(10,8);
     private double L;
     private double W;
     private double D;
@@ -25,12 +22,12 @@ public class Simulation {
     private Universe universe;
     private double time;
     private double elapsedTime;
-    private VerletIntegrationMethod verlet;
+    private IntegrationMethod integrationMethod;
     private ForceCalculator fc;
 
-    public Simulation(Universe universe) {
+    public Simulation(Universe universe, double totalTime) {
         this.universe = universe;
-        time = 5;  //config!!
+        time = totalTime;
         elapsedTime = 0.0;
         this.L = universe.getLengthY();
         this.W = universe.getLengthX();
@@ -38,11 +35,15 @@ public class Simulation {
         this.fc = new ForceCalculator(W, L, D);
     }
 
-    public void startUniverse(String quantity_method, int quantity, double minRadius, double maxRadius, double mass) {
-        if(quantity_method.toLowerCase().equals("max"))
-            initializeParticlesMaxCapacity(minRadius, maxRadius, mass);
-        else
-            initializeParticlesWithQuantity(quantity, minRadius, maxRadius, mass);
+    public void startUniverse(String quantity_method, int quantity) {
+        if(quantity_method.toLowerCase().equals("max")) {
+            System.out.println("Creando la maxima cantidad de particulas posibles");
+            initializeParticlesMaxCapacity();
+        } else {
+            System.out.println("Creando " + quantity + " particulas");
+            initializeParticlesWithQuantity(quantity);
+        }
+        System.out.println("Creando paredes");
         initializeWalls();
     }
 
@@ -51,7 +52,7 @@ public class Simulation {
     }
 
 
-    public void initializeParticlesWithQuantity(int quantity, double minRadius, double maxRadius, double mass) {
+    public void initializeParticlesWithQuantity(int quantity) {
         Particle particle;
         double positionX;
         double positionY;
@@ -63,16 +64,16 @@ public class Simulation {
             do {
                 positionX = getRandomDouble(0, W);
                 positionY = getRandomDouble(0, L - L/3);
-                radius = getRandomDouble(minRadius, maxRadius);
+                radius = getRandomDouble(Const.minRadius, Const.maxRadius);
                 check = checkSuperposition(positionX, positionY, radius, W, L);
             } while (!check);
-            particle = new Particle(new Vector2D(positionX, positionY), mass, radius, Color.BLUE);
+            particle = new Particle(new Vector2D(positionX, positionY), Const.mass, radius, Color.BLUE);
             this.universe.getParticles().add(particle);
 
         }
     }
 
-    public void initializeParticlesMaxCapacity(double minRadius, double maxRadius, double mass) {
+    public void initializeParticlesMaxCapacity() {
         Particle particle;
         double positionX;
         double positionY;
@@ -90,19 +91,19 @@ public class Simulation {
                 positionX = getRandomDouble(0, W);
                 positionY = getRandomDouble(0, L - L/3);
                 if(tries > Math.pow(10,5))
-                    radius = minRadius;
+                    radius = Const.minRadius;
                 else
-                    radius = getRandomDouble(minRadius, maxRadius);
+                    radius = getRandomDouble(Const.minRadius, Const.maxRadius);
                 check = checkSuperposition(positionX, positionY, radius, W, L);
                 tries++;
 
-                if(tries > MAX_TRIES) {
+                if(tries > Const.MAX_TRIES) {
                     notfull = false;
                     break;
                 }
             } while (!check);
             if(check == true) {
-                particle = new Particle(new Vector2D(positionX, positionY), mass, radius, Color.BLUE);
+                particle = new Particle(new Vector2D(positionX, positionY), Const.mass, radius, Color.BLUE);
                 this.universe.getParticles().add(particle);
             }
         }
@@ -181,40 +182,25 @@ public class Simulation {
     }
 
     public void simulate(double deltaT, double deltaT2, NeighbourCalculator neighbourCalculator) {
-        verlet = new VerletIntegrationMethod(deltaT);
+        System.out.println("Comenzando la simulación");
+        integrationMethod = new VerletIntegrationMethod(deltaT);
         double elapsedDeltaT2 = deltaT2;
 
         do {
             if (elapsedTime == 0 || elapsedTime > elapsedDeltaT2) {
                 OvitoGenerator.recopilateData(this);
                 elapsedDeltaT2 = elapsedTime + deltaT2;
-                System.out.println(elapsedTime);
+                System.out.println("Elapsed time: " + elapsedTime);
             }
-            checkParticleInteractions(neighbourCalculator);
+            universe.setParticles(integrationMethod.integrate(universe.getParticles(), neighbourCalculator, fc));
+            universe.setNewParticles(removeFallenParticles());
             elapsedTime += deltaT;
         } while(isConditionNotComplete(elapsedTime));
-
     }
 
     public boolean isConditionNotComplete(double elapsedTime) {
         return (elapsedTime <= time);
     }
-
-    private void checkParticleInteractions(NeighbourCalculator neighbourCalculator) {
-        Map<Particle, Set<Particle>> map = neighbourCalculator.getNeighbours(universe.getParticles());
-        Set<Particle> auxiliar = new HashSet<>();
-        auxiliar.addAll(universe.getParticles());
-
-        for (Particle p : universe.getParticles()) {
-            Set<Particle> neighbours = map.get(p);
-            p.setForce(fc.calculateForce(p, neighbours));
-            verlet.integrate(auxiliar);
-        }
-
-        universe.setParticles(auxiliar);
-        universe.setNewParticles(removeFallenParticles());
-    }
-
 
     private void addFallenParticles(Particle old, Set<Particle> newParticles) {
         Particle p;

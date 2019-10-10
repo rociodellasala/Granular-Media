@@ -20,27 +20,13 @@ public class Configuration {
 
         try {
             properties.load(input);
-        } catch(Exception E){
+        } catch (Exception E) {
 
         }
 
-        for (final String name: properties.stringPropertyNames()) {
+        for (final String name : properties.stringPropertyNames()) {
             program_configuration.put(name, properties.getProperty(name).toLowerCase());
         }
-    }
-
-    /* Getters for particle modifiers */
-
-    public double getMaxRadius(){
-        return Double.parseDouble(program_configuration.get("maxRadius"));
-    }
-
-    public double getMinRadius(){
-        return Double.parseDouble(program_configuration.get("minRadius"));
-    }
-
-    public double getMass() {
-        return Double.parseDouble(program_configuration.get("mass"));
     }
 
     /* Getters for universe modifiers */
@@ -50,19 +36,23 @@ public class Configuration {
     }
 
     public double getHoleSize() {
-        return Double.parseDouble(program_configuration.get("holeSize"));
+        return Double.parseDouble(program_configuration.get("D"));
     }
 
     public double getL() {
-        return Double.parseDouble(program_configuration.get("large"));
+        return Double.parseDouble(program_configuration.get("L"));
     }
 
     public double getW() {
-        return Double.parseDouble(program_configuration.get("width"));
+        return Double.parseDouble(program_configuration.get("W"));
     }
 
     public String getQuantityMethod() {
-        return program_configuration.get("quantity_method");
+        return program_configuration.get("quantityMethod");
+    }
+
+    public double getInteractionRadio() {
+        return Double.parseDouble(program_configuration.get("interactionRadio"));
     }
 
     /* Getters for simulation modifiers */
@@ -73,6 +63,10 @@ public class Configuration {
 
     public double getDeltaT2() {
         return Double.parseDouble(program_configuration.get("deltaT2"));
+    }
+
+    public double getTotalTime() {
+        return Double.parseDouble(program_configuration.get("totalTime"));
     }
 
 }

@@ -12,8 +12,8 @@ public class NeighbourCalculator {
     private int gridHeight;
     private Set<Particle> outOfBounds;
 
-    public NeighbourCalculator(double height, double width, double interactionRadius, double maxRadius) {
-        this.cellWidth = 2 * maxRadius + interactionRadius;
+    public NeighbourCalculator(double height, double width, double interactionRadius) {
+        this.cellWidth = 2 * Const.maxRadius + interactionRadius;
         this.gridWidth = (int) Math.ceil(width / cellWidth);
         this.gridHeight = (int) Math.ceil(height / cellWidth);
         this.outOfBounds = new HashSet<>();
@@ -60,7 +60,6 @@ public class NeighbourCalculator {
             } else {
                 outOfBounds.add(p);
             }
-
         }
     }
 

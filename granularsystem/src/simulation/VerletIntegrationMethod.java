@@ -2,26 +2,34 @@ package simulation;
 
 import models.Particle;
 import models.Vector2D;
+import utils.ForceCalculator;
+import utils.NeighbourCalculator;
 
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
-public class VerletIntegrationMethod {
+public class VerletIntegrationMethod implements IntegrationMethod {
     private double deltaT;
-
 
     public VerletIntegrationMethod(double deltaT) {
         this.deltaT = deltaT;
-
     }
 
-    public void integrate(Set<Particle> particles) {
+    public Set<Particle> integrate(Set<Particle> particles, NeighbourCalculator neighbourCalculator, ForceCalculator fc) {
+        Map<Particle, Set<Particle>> map = neighbourCalculator.getNeighbours(particles);
+
         for (Particle p : particles) {
+            Set<Particle> neighbours = map.get(p);
+            p.setForce(fc.calculateForce(p, neighbours));
             if (p.getPreviousPosition() == null) {
                 nextWithEuler(p);
             } else {
                 updateParticleWithVerlet(p);
             }
         }
+
+        return updateParticles(particles);
     }
 
     private void nextWithEuler(Particle particle) {
@@ -35,12 +43,10 @@ public class VerletIntegrationMethod {
         Vector2D currentV = p.getSpeed();
         Vector2D currentF = p.getForce();
 
-        p.setPreviousPosition(p.getPosition());
-
         nextPositionEuler = currentR.add(currentV.getMultiplied(deltaT)).
                 add(currentF.getMultiplied((deltaT*deltaT)/2 * p.getMass()));
 
-        p.setPosition(nextPositionEuler);
+        p.setNextPosition(nextPositionEuler);
     }
 
     private void updateNextSpeed(Particle p) {
@@ -48,16 +54,13 @@ public class VerletIntegrationMethod {
         Vector2D currentV = p.getSpeed();
         Vector2D currentF = p.getForce();
 
-        p.setPreviousSpeed(p.getSpeed());
-
         nextSpeedEuler = currentV.add(currentF.getMultiplied(deltaT/p.getMass()));
-        p.setSpeed(nextSpeedEuler);
+        p.setNextSpeed(nextSpeedEuler);
     }
 
     private void updateParticleWithVerlet(Particle particle) {
-        Vector2D previous = particle.getPreviousPosition();
         updateVerletPosition(particle);
-        updateVerletSpeed(particle, previous);
+        updateVerletSpeed(particle);
 
     }
 
@@ -67,22 +70,36 @@ public class VerletIntegrationMethod {
         Vector2D currentF = p.getForce();
         Vector2D previousR = p.getPreviousPosition();
 
+
         nextPosition = currentR.getMultiplied(2).subtract(previousR).add(currentF
                 .getMultiplied((deltaT*deltaT)/2 * p.getMass()));
 
-        p.setPreviousPosition(p.getPosition());
-        p.setPosition(nextPosition);
+        p.setNextPosition(nextPosition);
     }
 
-    private void updateVerletSpeed(Particle p, Vector2D previousPos) {
+    private void updateVerletSpeed(Particle p) {
         Vector2D nextSpeed;
-        Vector2D nextR = p.getPosition();
-        Vector2D previousR = previousPos;
+        Vector2D nextR = p.getNextPosition();
+        Vector2D previousR = p.getPreviousPosition();
 
         nextSpeed = nextR.subtract(previousR).getDivided(2 * deltaT);
 
-        p.setPreviousSpeed(p.getSpeed());
-        p.setSpeed(nextSpeed);
+        p.setNextSpeed(nextSpeed);
+    }
+
+    private Set<Particle> updateParticles(Set<Particle> particles) {
+        Set<Particle> updatedParticles = new HashSet<>();
+
+        for(Particle p : particles) {
+            p.setPreviousSpeed(p.getSpeed());
+            p.setSpeed(p.getNextSpeed());
+            p.setPreviousPosition(p.getPosition());
+            p.setPosition(p.getNextPosition());
+            p.reset();
+            updatedParticles.add(p);
+        }
+
+        return updatedParticles;
     }
 
 }

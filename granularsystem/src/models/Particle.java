@@ -11,8 +11,11 @@ public class Particle {
 
     private Vector2D previousPosition = null;
     private Vector2D position;
+    private Vector2D futurePosition;
+
     private Vector2D previousSpeed;
     private Vector2D speed;
+    private Vector2D futureSpeed;
 
     private Vector2D force;
 
@@ -43,20 +46,28 @@ public class Particle {
         this.setId(id);
     }
 
-    public void setPreviousPosition(Vector2D position) {
-        this.previousPosition = position;
+    public void setPreviousPosition(Vector2D previousPosition) {
+        this.previousPosition = previousPosition;
     }
 
     public void setPosition(Vector2D position) {
         this.position = position;
     }
 
-    public void setPreviousSpeed(Vector2D speed) {
-        this.previousSpeed = speed;
+    public void setNextPosition(Vector2D nextPosition) {
+        this.futurePosition = nextPosition;
+    }
+
+    public void setPreviousSpeed(Vector2D previousSpeed) {
+        this.previousSpeed = previousSpeed;
     }
 
     public void setSpeed(Vector2D speed) {
         this.speed = speed;
+    }
+
+    public void setNextSpeed(Vector2D nextSpeed) {
+        this.futureSpeed = nextSpeed;
     }
 
     public void setForce(Vector2D force) {
@@ -87,12 +98,25 @@ public class Particle {
         return position;
     }
 
+    public Vector2D getNextPosition() {
+        return futurePosition;
+    }
+
     public Vector2D getSpeed() {
         return speed;
     }
 
+    public Vector2D getNextSpeed() {
+        return futureSpeed;
+    }
+
     public Vector2D getForce() {
         return force;
+    }
+
+    public void reset() {
+        this.futurePosition = null;
+        this.futureSpeed = null;
     }
 
     public int getID() {
