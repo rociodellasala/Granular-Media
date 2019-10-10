@@ -7,10 +7,10 @@ import java.util.Properties;
 
 public class Configuration {
 
-    private Map<String,String> program_configuration;
+    private Map<String, String> program_configuration;
     private Properties properties;
 
-    public  Configuration() {
+    public Configuration() {
         this.program_configuration = new HashMap<>();
         this.properties = new Properties();
     }
@@ -20,7 +20,7 @@ public class Configuration {
 
         try {
             properties.load(input);
-        } catch (Exception E) {
+        } catch (Exception ignored) {
 
         }
 
@@ -53,6 +53,10 @@ public class Configuration {
 
     public double getInteractionRadio() {
         return Double.parseDouble(program_configuration.get("interactionRadio"));
+    }
+
+    public double getFillingPercentage() {
+        return Double.parseDouble(program_configuration.get("fillingPercentage"));
     }
 
     /* Getters for simulation modifiers */

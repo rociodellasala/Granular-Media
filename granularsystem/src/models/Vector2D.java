@@ -28,23 +28,23 @@ public class Vector2D {
         return new Vector2D(x - vector.x, y - vector.y);
     }
 
-    public Vector2D getMultiplied(double scalar) {
+    public Vector2D multiplyByScalar(double scalar) {
         return new Vector2D(x * scalar, y * scalar);
     }
 
-    public double getModule(){
-        return Math.sqrt(Math.pow(this.x,2d) + Math.pow(this.y, 2d));
+    double getModule() {
+        return Math.sqrt(Math.pow(this.x, 2d) + Math.pow(this.y, 2d));
     }
 
-    public Vector2D getDivided(double scalar) {
+    public Vector2D divideByScalar(double scalar) {
         return new Vector2D(x / scalar, y / scalar);
     }
 
-    public Vector2D distance(Vector2D v){
+    Vector2D distance(Vector2D v) {
         return new Vector2D(Math.abs(this.x - v.getX()), Math.abs(this.y - v.getY()));
     }
 
-    public double dot(Vector2D other) {
+    public double multiplyByVector(Vector2D other) {
         return x * other.x + y * other.y;
     }
 

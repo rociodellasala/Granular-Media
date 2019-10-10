@@ -1,7 +1,8 @@
-package utils;
+package calculators;
 
 import models.Cell;
 import models.Particle;
+import utils.Const;
 
 import java.util.*;
 
@@ -12,10 +13,10 @@ public class NeighbourCalculator {
     private int gridHeight;
     private Set<Particle> outOfBounds;
 
-    public NeighbourCalculator(double height, double width, double interactionRadius) {
+    public NeighbourCalculator(double interactionRadius) {
         this.cellWidth = 2 * Const.maxRadius + interactionRadius;
-        this.gridWidth = (int) Math.ceil(width / cellWidth);
-        this.gridHeight = (int) Math.ceil(height / cellWidth);
+        this.gridWidth = (int) Math.ceil(Const.W / cellWidth);
+        this.gridHeight = (int) Math.ceil(Const.L / cellWidth);
         this.outOfBounds = new HashSet<>();
 
         grid = new Cell[gridWidth][gridHeight];
@@ -83,7 +84,7 @@ public class NeighbourCalculator {
         return nearParticles;
     }
 
-    public void addParticles(Set<Particle> nearParticles, int x, int y) {
+    private void addParticles(Set<Particle> nearParticles, int x, int y) {
         if (x >= 0 && x < gridWidth && y >= 0 && y < gridHeight) {
             nearParticles.addAll(grid[x][y].getParticles());
         }

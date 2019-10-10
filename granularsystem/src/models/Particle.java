@@ -1,7 +1,5 @@
 package models;
 
-import java.awt.Color;
-import java.text.DecimalFormat;
 
 public class Particle {
 
@@ -21,28 +19,25 @@ public class Particle {
 
     private double mass;
     private double radius;
-    private Color color;
 
-    public Particle(Vector2D position, double mass, double radius, Color color) {
+    public Particle(Vector2D position, double mass, double radius, boolean isWall) {
         this.setPosition(position);
         this.setSpeed(Vector2D.ZERO);
         this.setForce(Vector2D.ZERO);
         this.setRadius(radius);
         this.setMass(mass);
-        this.setColor(color);
-        if(color.equals(Color.WHITE))
+        if(isWall)
             this.setId(WALL_ID--);
         else
             this.setId(ID++);
     }
 
-    public Particle(Vector2D position, double mass, double radius, Color color, int id) {
+    public Particle(Vector2D position, double mass, double radius, int id) {
         this.setPosition(position);
         this.setSpeed(Vector2D.ZERO);
         this.setForce(Vector2D.ZERO);
         this.setRadius(radius);
         this.setMass(mass);
-        this.setColor(color);
         this.setId(id);
     }
 
@@ -78,10 +73,6 @@ public class Particle {
         this.id = i;
     }
 
-    public void setColor(Color color) {
-        this.color = color;
-    }
-
     public void setRadius(double radius) {
         this.radius = radius;
     }
@@ -114,11 +105,6 @@ public class Particle {
         return force;
     }
 
-    public void reset() {
-        this.futurePosition = null;
-        this.futureSpeed = null;
-    }
-
     public int getID() {
         return id;
     }
@@ -127,12 +113,13 @@ public class Particle {
         return radius;
     }
 
-    public Color getColor() {
-        return color;
-    }
-
     public double getMass() {
         return mass;
+    }
+
+    public void reset() {
+        this.futurePosition = null;
+        this.futureSpeed = null;
     }
 
     @Override

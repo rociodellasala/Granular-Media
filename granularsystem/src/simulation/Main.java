@@ -1,8 +1,12 @@
 package simulation;
 
+import calculators.ForceCalculator;
+import calculators.NeighbourCalculator;
+import integrationMethods.IntegrationMethod;
+import integrationMethods.VerletIntegrationMethod;
 import models.Universe;
 import utils.Configuration;
-import utils.NeighbourCalculator;
+import utils.Const;
 import utils.OvitoGenerator;
 
 public class Main {
@@ -16,25 +20,29 @@ public class Main {
         checkParameters(config);
         System.out.println("Todos los parametros de configuración son correctos");
 
+        new Const(config.getL(), config.getW(), config.getHoleSize());
+
         System.out.println("Creando el universo");
-        universe = new Universe(config.getL(), config.getW(), config.getHoleSize());
+        universe = new Universe();
 
-        simulation = new Simulation(universe, config.getTotalTime());
+        NeighbourCalculator ncalculator = new NeighbourCalculator(config.getInteractionRadio());
+        ForceCalculator forceCalculator = new ForceCalculator();
 
-        NeighbourCalculator ncalculator = new NeighbourCalculator(config.getL(), config.getW(),
-                config.getInteractionRadio());
+        IntegrationMethod ig = new VerletIntegrationMethod(config.getDeltaT(), ncalculator, forceCalculator);
+
+        simulation = new Simulation(universe, config.getTotalTime(), config.getFillingPercentage(), ig);
 
         OvitoGenerator.initializeOvito();
 
         System.out.println("Iniciando la simulación del medio granular");
         simulation.startUniverse(config.getQuantityMethod(), config.getQuantity());
-        simulation.simulate(config.getDeltaT(), config.getDeltaT2(), ncalculator);
+        simulation.simulate(config.getDeltaT(), config.getDeltaT2());
 
         OvitoGenerator.closeFiles();
     }
 
     private static void checkParameters(Configuration config) {
-        if (config.getQuantity() < 1) {
+        if (!config.getQuantityMethod().toLowerCase().equals("max") && config.getQuantity() < 1) {
             throw new IllegalArgumentException("La cantidad de partículas debe ser como minimo 1");
         }
 
@@ -42,13 +50,17 @@ public class Main {
             throw new IllegalArgumentException("El alto L del recinto debe pertenecer al intervalo [1.0,1.5] m");
         }
 
-        if (config.getW() < 0.3 || config.getW() > 0.4) {
+        if (config.getW() < 0 || config.getW() > 0.4) {
             throw new IllegalArgumentException("El ancho W del recinto debe pertenecer al intervalo [0.3,0.4] m");
         }
 
         if (config.getHoleSize() < 0.15 || config.getHoleSize() > 0.25) {
             throw new IllegalArgumentException("El ancho de salida D del recinto debe pertenecer al intervalo " +
                     "[0.15,0.25] m");
+        }
+
+        if (config.getFillingPercentage() < 0.2 || config.getFillingPercentage() > 0.85) {
+            throw new IllegalArgumentException("El porcentaje de llenado debe pertenecer al intervalo [0.2,0.85]");
         }
 
     }

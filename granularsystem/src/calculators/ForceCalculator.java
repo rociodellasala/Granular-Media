@@ -1,44 +1,37 @@
-package utils;
+package calculators;
 
 import models.Particle;
 import models.Vector2D;
+import utils.Const;
 
 import java.util.Set;
 
 public class ForceCalculator {
 
-    private double L;
-    private double W;
-    private double D;
-
-    public ForceCalculator(double w, double l, double d) {
-        this.L = l;
-        this.W = w;
-        this.D = d;
-    }
+    public ForceCalculator() { }
 
     public Vector2D calculateForce(Particle p, Set<Particle> neighbours) {
-        Vector2D force = new Vector2D(0,- p.getMass() * Const.g);
+        Vector2D force = new Vector2D(0, -p.getMass() * Const.g);
         double overlap;
         double xDistanceFraction, yDistanceFraction, distance;
         double forceX = 0;
         double forceY = 0;
         double normalForce, tangencialForce;
 
-        for(Particle neighbour : neighbours) {
-            if(!p.equals(neighbour)) {
+        for (Particle neighbour : neighbours) {
+            if (!p.equals(neighbour)) {
                 overlap = overlapping(p, neighbour);
 
-                if (overlap > 0) {
+                if (overlap > 0) { //TODO: > o >= ???? DUDA
                     distance = neighbour.getDistance(p);
-                    xDistanceFraction = (neighbour.getPosition().getX() - p.getPosition().getX())/distance;
-                    yDistanceFraction = (neighbour.getPosition().getY() - p.getPosition().getY())/distance;
+                    xDistanceFraction = (neighbour.getPosition().getX() - p.getPosition().getX()) / distance;
+                    yDistanceFraction = (neighbour.getPosition().getY() - p.getPosition().getY()) / distance;
 
-                    Vector2D normalVector = new Vector2D(yDistanceFraction, -xDistanceFraction);
-                    double relativeVelocity = getRelativeVelocity(p, neighbour , normalVector);
+                    Vector2D tangencialVector = new Vector2D(-yDistanceFraction, xDistanceFraction);
+                    Vector2D relativeVelocity = p.getSpeed().subtract(neighbour.getSpeed());
 
                     normalForce = -Const.kn * overlap;
-                    tangencialForce = -Const.kt * overlap * relativeVelocity;
+                    tangencialForce = -Const.kt * overlap * relativeVelocity.multiplyByVector(tangencialVector);
 
                     forceX += normalForce * xDistanceFraction + tangencialForce * (-yDistanceFraction);
                     forceY += normalForce * yDistanceFraction + tangencialForce * xDistanceFraction;
@@ -52,19 +45,14 @@ public class ForceCalculator {
         return force;
     }
 
-    private Vector2D getNormalAndTangencialVector(double overlap, double relativeVelocity){
+    private Vector2D getNormalAndTangencialVector(double overlap, double relativeVelocity) {
         return new Vector2D(
                 -Const.kn * overlap,
                 -Const.kt * overlap * relativeVelocity
         );
     }
 
-    private static double getRelativeVelocity(Particle one, Particle another, Vector2D tan) {
-        Vector2D v = another.getSpeed().subtract(one.getSpeed());
-        return v.getX() * tan.getX() + v.getY() * tan.getY();
-    }
-
-    public double overlapping(Particle i, Particle j){
+    private double overlapping(Particle i, Particle j) {
         double result = i.getRadius() + j.getRadius() - i.getDistance(j);
         return result >= 0 ? result : 0;
     }
@@ -78,20 +66,20 @@ public class ForceCalculator {
         Vector2D left = leftWall(p);
         Vector2D bottom = bottomWall(p);
         Vector2D top = topWall(p);
-        Vector2D total = right.add(left).add(bottom).add(top);
 
-        return total;
+        return right.add(left).add(bottom).add(top);
     }
 
-    private Vector2D bottomWall(Particle p){
+    private Vector2D bottomWall(Particle p) {
         Vector2D force = Vector2D.ZERO;
         double overlap = p.getRadius() - p.getPosition().getY();
 
-        boolean shouldCrashBottom = (p.getPosition().getX() < (W/2 - D/2) || p.getPosition().getX() > W - (W/2 - D/2))
+        boolean shouldCrashBottom = (p.getPosition().getX() < (Const.W / 2 - Const.D / 2) || p.getPosition().getX() >
+                Const.W - (Const.W / 2 - Const.D / 2))
                 && p.getPosition().getY() > 0;
 
-        if(shouldCrashBottom && overlap > 0){
-            double relativeVelocity = - p.getSpeed().getX();
+        if (shouldCrashBottom && overlap > 0) {
+            double relativeVelocity = -p.getSpeed().getX();
             Vector2D forceNormalAndTan = getNormalAndTangencialVector(overlap, relativeVelocity);
             force = new Vector2D(-forceNormalAndTan.getY(), -forceNormalAndTan.getX());
         }
@@ -99,11 +87,11 @@ public class ForceCalculator {
         return force;
     }
 
-    private Vector2D topWall(Particle p){
+    private Vector2D topWall(Particle p) {
         Vector2D force = Vector2D.ZERO;
-        double overlap = + p.getRadius() + p.getPosition().getY() - L;
+        double overlap = +p.getRadius() + p.getPosition().getY() - Const.L;
 
-        if (overlap > 0){
+        if (overlap > 0) {
             double relativeVelocity = p.getSpeed().getX();
             Vector2D forceNormalAndTan = getNormalAndTangencialVector(overlap, relativeVelocity);
             force = new Vector2D(forceNormalAndTan.getY(), forceNormalAndTan.getX());
@@ -112,11 +100,11 @@ public class ForceCalculator {
         return force;
     }
 
-    private Vector2D leftWall(Particle p){
+    private Vector2D leftWall(Particle p) {
         Vector2D force = Vector2D.ZERO;
         double overlap = p.getRadius() - p.getPosition().getX();
 
-        if (overlap > 0){
+        if (overlap > 0) {
             double relativeVelocity = p.getSpeed().getY();
             Vector2D forceNormalAndTan = getNormalAndTangencialVector(overlap, relativeVelocity);
             force = new Vector2D(-1 * forceNormalAndTan.getX(), forceNormalAndTan.getY());
@@ -127,9 +115,9 @@ public class ForceCalculator {
 
     private Vector2D rightWall(Particle p) {
         Vector2D force = Vector2D.ZERO;
-        double overlap = p.getRadius() - W + p.getPosition().getX();
+        double overlap = p.getRadius() - Const.W + p.getPosition().getX();
 
-        if (overlap > 0){
+        if (overlap > 0) {
             double relativeVelocity = -p.getSpeed().getY();
             Vector2D forceNormalAndTan = getNormalAndTangencialVector(overlap, relativeVelocity);
             force = new Vector2D(forceNormalAndTan.getX(), -forceNormalAndTan.getY());
