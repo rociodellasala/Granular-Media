@@ -82,7 +82,7 @@ public class Simulation {
 
             do {
                 positionX = getRandomDouble(0,Const.W);
-                positionY = getRandomDouble(0,Const.L -Const.L / 3);
+                positionY = getRandomDouble(0,fillingPercentage * Const.L);
                 if (tries > Math.pow(10, 5))
                     radius = Const.minRadius;
                 else
