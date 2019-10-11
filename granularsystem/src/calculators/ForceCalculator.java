@@ -40,7 +40,7 @@ public class ForceCalculator {
         }
 
         force = force.add(new Vector2D(forceX, forceY));
-        force = force.add(calculateForceFromWalls(force, p));
+        force = force.add(getWallForces(p));
 
         return force;
     }
@@ -55,10 +55,6 @@ public class ForceCalculator {
     private double overlapping(Particle i, Particle j) {
         double result = i.getRadius() + j.getRadius() - i.getDistance(j);
         return result >= 0 ? result : 0;
-    }
-
-    private Vector2D calculateForceFromWalls(Vector2D force, Particle p) {
-        return force.add(getWallForces(p));
     }
 
     private Vector2D getWallForces(Particle p) {
