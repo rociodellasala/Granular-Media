@@ -50,11 +50,11 @@ public class Main {
             throw new IllegalArgumentException("El alto L del recinto debe pertenecer al intervalo [1.0,1.5] m");
         }
 
-        if (config.getW() < 0 || config.getW() > 0.4) {
+        if (config.getW() < 0.3 || config.getW() > 0.4) {
             throw new IllegalArgumentException("El ancho W del recinto debe pertenecer al intervalo [0.3,0.4] m");
         }
 
-        if (config.getHoleSize() < 0.15 || config.getHoleSize() > 0.25) {
+        if (config.getHoleSize() < 0 || config.getHoleSize() > 0.25) {
             throw new IllegalArgumentException("El ancho de salida D del recinto debe pertenecer al intervalo " +
                     "[0.15,0.25] m");
         }

@@ -7,7 +7,7 @@ quantityMethod = max
 quantity = 2
 fillingPercentage = 0.4
 interactionRadio = 0.015
-D = 0.15
+D = 0
 L = 1.30
 W = 0.35
 
