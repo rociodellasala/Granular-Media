@@ -7,12 +7,11 @@ import models.Vector2D;
 import utils.Const;
 import utils.OvitoGenerator;
 
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
+import java.text.DecimalFormat;
+import java.util.*;
 
 public class Simulation {
-    
+
     private Universe universe;
     private double time;
     private double elapsedTime;
@@ -37,7 +36,7 @@ public class Simulation {
         }
 
         System.out.println("Creando paredes");
-        double radius = 0.003;
+        double radius = 0.007;
         initializeCornerWalls(radius);
         initializeHoleDelimiterWalls(radius);
     }
@@ -56,10 +55,10 @@ public class Simulation {
 
         for (int i = 0; i < quantity; i++) {
             do {
-                positionX = getRandomDouble(0,Const.W);
-                positionY = getRandomDouble(0,Const.L * fillingPercentage);
+                positionX = getRandomDouble(0, Const.W);
+                positionY = getRandomDouble(0, Const.L * fillingPercentage);
                 radius = getRandomDouble(Const.minRadius, Const.maxRadius);
-                check = checkSuperposition(positionX, positionY, radius,Const.W,Const.L);
+                check = checkSuperposition(positionX, positionY, radius, Const.W, Const.L);
             } while (!check);
             particle = new Particle(new Vector2D(positionX, positionY), Const.mass, radius, false);
             this.universe.getParticles().add(particle);
@@ -81,13 +80,13 @@ public class Simulation {
             tries = 0;
 
             do {
-                positionX = getRandomDouble(0,Const.W);
-                positionY = getRandomDouble(0,fillingPercentage * Const.L);
+                positionX = getRandomDouble(0, Const.W);
+                positionY = getRandomDouble(0, fillingPercentage * Const.L);
                 if (tries > Math.pow(10, 5))
                     radius = Const.minRadius;
                 else
                     radius = getRandomDouble(Const.minRadius, Const.maxRadius);
-                check = checkSuperposition(positionX, positionY, radius,Const.W,Const.L);
+                check = checkSuperposition(positionX, positionY, radius, Const.W, Const.L);
                 tries++;
 
                 if (tries > Const.MAX_TRIES) {
@@ -107,33 +106,33 @@ public class Simulation {
     private void initializeCornerWalls(double radius) {
         Particle corner;
 
-        corner = new Particle(new Vector2D(0.0,Const.L), 0.0, radius, true);
+        corner = new Particle(new Vector2D(0.0, Const.L), 0.0, radius, true);
         this.universe.getWalls().add(corner);
 
-        corner = new Particle(new Vector2D(Const.W ,Const.L), 0.0, radius, true);
+        corner = new Particle(new Vector2D(Const.W, Const.L), 0.0, radius, true);
         this.universe.getWalls().add(corner);
-        
-        corner = new Particle(new Vector2D(0.0, -Const.L/10), 0.0, radius, true);
+
+        corner = new Particle(new Vector2D(0.0, -Const.L / 10), 0.0, radius, true);
         this.universe.getWalls().add(corner);
-        
-        corner = new Particle(new Vector2D(Const.W, -Const.L/10), 0.0, radius, true);
+
+        corner = new Particle(new Vector2D(Const.W, -Const.L / 10), 0.0, radius, true);
         this.universe.getWalls().add(corner);
 
     }
 
     private void initializeHoleDelimiterWalls(double radius) {
         Particle bottom;
-        double a =(Const.W -Const.D) / 2;
+        double a = (Const.W - Const.D) / 2;
         int j = 0;
 
         for (double i = 0; i < a; i += radius, j++) {
-            bottom = new Particle(new Vector2D(radius * j, 0.0), 0.0, 0.003, true);
+            bottom = new Particle(new Vector2D(radius * j, 0.0), 0.0, radius, true);
             this.universe.getWalls().add(bottom);
         }
 
-        a =Const.D+(Const.W -Const.D) / 2;
-        for (double i =Const.W; i > a; i -= radius, j++) {
-            bottom = new Particle(new Vector2D(Const.D + radius * j, 0.0), 0.0, 0.003, true);
+        a = Const.D + (Const.W - Const.D) / 2;
+        for (double i = Const.W; i > a; i -= radius, j++) {
+            bottom = new Particle(new Vector2D(Const.D + radius * j, 0.0), 0.0, radius, true);
             this.universe.getWalls().add(bottom);
         }
 
@@ -172,17 +171,25 @@ public class Simulation {
     void simulate(double deltaT, double deltaT2) {
         System.out.println("Comenzando la simulación");
         double elapsedDeltaT2 = deltaT2;
+        List<double[]> kineticEnergy = new ArrayList<>();
 
         do {
+            double[] current = {elapsedTime,getEnergy(universe.getParticles())};
+            kineticEnergy.add(current);
+
             if (elapsedTime == 0 || elapsedTime > elapsedDeltaT2) {
                 OvitoGenerator.recopilateData(this);
                 elapsedDeltaT2 = elapsedTime + deltaT2;
                 System.out.println("Elapsed time: " + elapsedTime);
             }
+
             universe.setParticles(integrationMethod.integrate(universe.getParticles()));
             universe.setNewParticles(removeFallenParticles());
             elapsedTime += deltaT;
         } while (isConditionNotComplete(elapsedTime));
+
+
+        OvitoGenerator.generateKineticInput(kineticEnergy);
     }
 
     private boolean isConditionNotComplete(double elapsedTime) {
@@ -198,19 +205,19 @@ public class Simulation {
         double oldRadius = old.getRadius();
         newParticles.remove(old);
         boolean check;
-        double refillLowerLimit = fillingPercentage *Const.L;
+        double refillLowerLimit = fillingPercentage * Const.L;
         Vector2D position;
 
         int tries = 0;
 
         do {
-            positionX = getRandomDouble(0,Const.W - Const.maxRadius);
-            positionY = getRandomDouble(refillLowerLimit,Const.L - Const.maxRadius);
+            positionX = getRandomDouble(0, Const.W - Const.maxRadius);
+            positionY = getRandomDouble(refillLowerLimit , Const.L - Const.maxRadius);
             position = new Vector2D(positionX, positionY);
 
-            check = checkSuperposition(positionX, positionY, oldRadius,Const.W,Const.L);
+            check = checkSuperposition(positionX, positionY, oldRadius, Const.W, Const.L);
             if (tries > Const.MEDIUM_TRIES) {
-                refillLowerLimit = fillingPercentage * 0.7 *Const.L;
+                refillLowerLimit = fillingPercentage * 0.7 * Const.L;
             }
             tries++;
         } while (!check);
@@ -222,7 +229,7 @@ public class Simulation {
         Set<Particle> particles = new HashSet<>();
 
         for (Particle p : universe.getParticles()) {
-            if (p.getPosition().getY() > (-Const.L/10) ) {
+            if (p.getPosition().getY() > (-Const.L / 10)) {
                 particles.add(p);
             } else {
                 addFallenParticles(p, particles);
@@ -230,6 +237,16 @@ public class Simulation {
         }
 
         return particles;
+    }
+
+    private double getEnergy(Set<Particle> particles) {
+        double speed = 0;
+
+        for(Particle p : particles) {
+            speed += Math.pow(p.getSpeed().abs(), 2);
+        }
+
+        return 0.5 * Const.mass * speed;
     }
 
 }

@@ -1,9 +1,7 @@
 package models;
 
 public class Vector2D {
-
     public static final Vector2D ZERO = new Vector2D(0.0, 0.0);
-
     public double x;
     public double y;
 
@@ -32,8 +30,8 @@ public class Vector2D {
         return new Vector2D(x * scalar, y * scalar);
     }
 
-    double getModule() {
-        return Math.sqrt(Math.pow(this.x, 2d) + Math.pow(this.y, 2d));
+    public double multiplyByVector(Vector2D other) {
+        return x * other.x + y * other.y;
     }
 
     public Vector2D divideByScalar(double scalar) {
@@ -44,8 +42,20 @@ public class Vector2D {
         return new Vector2D(Math.abs(this.x - v.getX()), Math.abs(this.y - v.getY()));
     }
 
-    public double multiplyByVector(Vector2D other) {
-        return x * other.x + y * other.y;
+    double getModule() {
+        return Math.sqrt(Math.pow(this.x, 2d) + Math.pow(this.y, 2d));
+    }
+
+    public double projectedOn(Vector2D other) {
+        return new Vector2D(x, y).multiplyByVector(other.versor());
+    }
+
+    private Vector2D versor() {
+        return new Vector2D(x, y).divideByScalar(abs());
+    }
+
+    public double abs() {
+        return Math.sqrt(x * x + y * y);
     }
 
     @Override

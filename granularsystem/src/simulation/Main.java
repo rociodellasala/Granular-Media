@@ -12,10 +12,11 @@ import utils.OvitoGenerator;
 public class Main {
 
     public static void main(String[] args) {
-        Configuration config = new Configuration();
+        Configuration config;
         Simulation simulation;
         Universe universe;
 
+        config = new Configuration();
         config.loadConfig();
         checkParameters(config);
         System.out.println("Todos los parametros de configuración son correctos");
@@ -27,7 +28,6 @@ public class Main {
 
         NeighbourCalculator ncalculator = new NeighbourCalculator(config.getInteractionRadio());
         ForceCalculator forceCalculator = new ForceCalculator();
-
         IntegrationMethod ig = new VerletIntegrationMethod(config.getDeltaT(), ncalculator, forceCalculator);
 
         simulation = new Simulation(universe, config.getTotalTime(), config.getFillingPercentage(), ig);
@@ -59,7 +59,7 @@ public class Main {
                     "[0.15,0.25] m");
         }
 
-        if (config.getFillingPercentage() < 0.2 || config.getFillingPercentage() > 0.85) {
+        if (config.getFillingPercentage() < 0.02 || config.getFillingPercentage() > 0.995) {
             throw new IllegalArgumentException("El porcentaje de llenado debe pertenecer al intervalo [0.2,0.85]");
         }
 

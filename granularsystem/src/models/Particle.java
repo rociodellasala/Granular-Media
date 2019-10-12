@@ -2,7 +2,6 @@ package models;
 
 
 public class Particle {
-
     private static int ID = 0;
     private static int WALL_ID = -1;
     private int id;
@@ -17,6 +16,8 @@ public class Particle {
 
     private Vector2D force;
 
+    private double kineticEnergy;
+
     private double mass;
     private double radius;
 
@@ -26,7 +27,7 @@ public class Particle {
         this.setForce(Vector2D.ZERO);
         this.setRadius(radius);
         this.setMass(mass);
-        if(isWall)
+        if (isWall)
             this.setId(WALL_ID--);
         else
             this.setId(ID++);
@@ -77,7 +78,7 @@ public class Particle {
         this.radius = radius;
     }
 
-    public void setMass(double mass) {
+    private void setMass(double mass) {
         this.mass = mass;
     }
 
@@ -117,10 +118,6 @@ public class Particle {
         return mass;
     }
 
-    public void reset() {
-        this.futurePosition = null;
-        this.futureSpeed = null;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -143,12 +140,17 @@ public class Particle {
 
     @Override
     public String toString() {
-         return position.getX() + " "
+        return position.getX() + " "
                 + position.getY() + " "
                 + id;
     }
 
-    public double getDistance(Particle p){
+    public double getDistance(Particle p) {
         return this.getPosition().distance(p.getPosition()).getModule();
+    }
+
+    public void reset() {
+        this.futurePosition = null;
+        this.futureSpeed = null;
     }
 }

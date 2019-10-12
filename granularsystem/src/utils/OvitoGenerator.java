@@ -6,6 +6,7 @@ import simulation.Simulation;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -13,10 +14,13 @@ import java.util.Set;
 
 public class OvitoGenerator {
     private static FileWriter dataWriter;
+    private static FileWriter kineticWriter;
 
     public static void initializeOvito() {
         File data = createFile("./data.txt");
+        File kineticEnergy = createFile("./kineticEnergy.txt");
         dataWriter = openWriter(data);
+        kineticWriter = openWriter(kineticEnergy);
     }
 
     public static void closeFiles() {
@@ -32,6 +36,7 @@ public class OvitoGenerator {
         recopilateParticlesData(walls, data);
         generateInput(data);
     }
+
 
     public static void recopilateParticlesData(Set<Particle> particles, List<double[]> data) {
         double id;
@@ -84,15 +89,29 @@ public class OvitoGenerator {
     }
 
     private static void generateInput(List<double[]> list) {
-        int quantity = list.size();
+
         try {
-            dataWriter.write(quantity + "\n");
+            dataWriter.write(list.size() + "\n");
             dataWriter.write("\\ID" + "\t" + "X" + "\t" + "Y" + "\t" + "Vx" + "\t" + "Vy" + "\t" +
                     "Radius" + "\n");
 
             for (double[] d : list) {
                 dataWriter.write((int) d[0] + "\t" + d[1] + "\t" + d[2] + "\t" + d[3] + "\t" + d[4] +
                         "\t" + d[5] + "\n");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void generateKineticInput(List<double[]> data) {
+         DecimalFormat df = new DecimalFormat("####.########");
+        try {
+            kineticWriter.write(data.size() + "\n");
+            kineticWriter.write("\\ElapsedTime" + "\t" + "TotalKineticEnergy" + "\n");
+
+            for (double d[] : data) {
+                kineticWriter.write(df.format(d[0]) + "\t" + d[1] + "\n");
             }
         } catch (IOException e) {
             e.printStackTrace();
