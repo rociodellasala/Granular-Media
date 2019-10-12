@@ -33,3 +33,11 @@ hs_err_pid*
 *.iml
 
 granularsystem/out/production/granularsystem/
+
+granularsystem/.classpath
+
+granularsystem/.project
+
+granularsystem/kineticEnergy.txt
+
+granularsystem/data.txt
