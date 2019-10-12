@@ -19,7 +19,7 @@ public class Main {
         config = new Configuration();
         config.loadConfig();
         checkParameters(config);
-        System.out.println("Todos los parametros de configuraciÃ³n son correctos");
+        System.out.println("Todos los parametros de configuración son correctos");
 
         new Const(config.getL(), config.getW(), config.getHoleSize());
 
@@ -34,7 +34,7 @@ public class Main {
 
         OvitoGenerator.initializeOvito();
 
-        System.out.println("Iniciando la simulaciÃ³n del medio granular");
+        System.out.println("Iniciando la simulación del medio granular");
         simulation.startUniverse(config.getQuantityMethod(), config.getQuantity());
         simulation.simulate(config.getDeltaT(), config.getDeltaT2());
 

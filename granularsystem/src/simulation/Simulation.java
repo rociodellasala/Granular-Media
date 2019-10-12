@@ -169,31 +169,32 @@ public class Simulation {
     }
 
     void simulate(double deltaT, double deltaT2) {
-        System.out.println("Comenzando la simulaciÃ³n");
+        System.out.println("Comenzando la simulación");
         double elapsedDeltaT2 = deltaT2;
         List<double[]> kineticEnergy = new ArrayList<>();
+        double kineticE = getEnergy(universe.getParticles());
 
         do {
-            double[] current = {elapsedTime,getEnergy(universe.getParticles())};
-            kineticEnergy.add(current);
-
             if (elapsedTime == 0 || elapsedTime > elapsedDeltaT2) {
                 OvitoGenerator.recopilateData(this);
                 elapsedDeltaT2 = elapsedTime + deltaT2;
                 System.out.println("Elapsed time: " + elapsedTime);
+                kineticE = getEnergy(universe.getParticles());
+                double[] current = {elapsedTime, kineticE};
+                kineticEnergy.add(current);
             }
 
             universe.setParticles(integrationMethod.integrate(universe.getParticles()));
             universe.setNewParticles(removeFallenParticles());
             elapsedTime += deltaT;
-        } while (isConditionNotComplete(elapsedTime));
+        } while (isConditionNotComplete(elapsedTime, kineticE));
 
 
         OvitoGenerator.generateKineticInput(kineticEnergy);
     }
 
-    private boolean isConditionNotComplete(double elapsedTime) {
-        return (elapsedTime <= time);
+    private boolean isConditionNotComplete(double elapsedTime, double kineticEnergy) {
+        return (elapsedTime <= time || kineticEnergy > Math.pow(10, -9));
     }
 
 

@@ -6,8 +6,8 @@ public class Const {
     public final static double kt = 2 * kn;            // N/m
     public final static double gamma = 70;            // N/m
 
-    public final static double MAX_TRIES = Math.pow(10, 8);
-    public final static double MEDIUM_TRIES = Math.pow(10, 5);
+    public final static double MAX_TRIES = Math.pow(10, 7);
+    public final static double MEDIUM_TRIES = Math.pow(10, 4);
 
     public final static double minRadius = 0.01;
     public final static double maxRadius = 0.015;
