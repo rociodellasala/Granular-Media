@@ -112,6 +112,12 @@ public class Simulation {
 
         corner = new Particle(new Vector2D(Const.W ,Const.L), 0.0, radius, true);
         this.universe.getWalls().add(corner);
+        
+        corner = new Particle(new Vector2D(0.0, -Const.L/10), 0.0, radius, true);
+        this.universe.getWalls().add(corner);
+        
+        corner = new Particle(new Vector2D(Const.W, -Const.L/10), 0.0, radius, true);
+        this.universe.getWalls().add(corner);
 
     }
 
@@ -216,7 +222,7 @@ public class Simulation {
         Set<Particle> particles = new HashSet<>();
 
         for (Particle p : universe.getParticles()) {
-            if (p.getPosition().getY() > (-Const.L/Math.pow(10,8))) {
+            if (p.getPosition().getY() > (-Const.L/10) ) {
                 particles.add(p);
             } else {
                 addFallenParticles(p, particles);
