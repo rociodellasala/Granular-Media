@@ -173,9 +173,10 @@ public class Simulation {
         double elapsedDeltaT2 = deltaT2;
         List<double[]> kineticEnergy = new ArrayList<>();
         double kineticE = getEnergy(universe.getParticles());
-
+        List<Double> caudalTimes = new ArrayList<>();
+        
         do {
-            if (elapsedTime == 0 || elapsedTime > elapsedDeltaT2) {
+            if (elapsedTime == deltaT || elapsedTime > elapsedDeltaT2) {
                 OvitoGenerator.recopilateData(this);
                 elapsedDeltaT2 = elapsedTime + deltaT2;
                 System.out.println("Elapsed time: " + elapsedTime);
@@ -186,16 +187,17 @@ public class Simulation {
             }
 
             universe.setParticles(integrationMethod.integrate(universe.getParticles()));
-            universe.setNewParticles(removeFallenParticles());
+            universe.setNewParticles(removeFallenParticles(caudalTimes, elapsedTime));
             elapsedTime += deltaT;
-        } while (isConditionNotComplete(elapsedTime));
+        } while (isConditionNotComplete(elapsedTime, kineticE));
 
 
-        OvitoGenerator.generateKineticInput(kineticEnergy);
+        OvitoGenerator.generateKineticOutput(kineticEnergy);
+        OvitoGenerator.generateCaudalOutput(caudalTimes);
     }
 
-    private boolean isConditionNotComplete(double elapsedTime) {
-        return (elapsedTime <= time);
+    private boolean isConditionNotComplete(double elapsedTime, double kineticEnergy) {
+        return (elapsedTime <= time && (elapsedTime < 0.5 || kineticEnergy > 1e-5));
     }
 
 
@@ -227,17 +229,18 @@ public class Simulation {
         newParticles.add(p);
     }
 
-    private Set<Particle> removeFallenParticles() {
+    private Set<Particle> removeFallenParticles(List<Double> caudalTimes, double elapsedTime) {
         Set<Particle> particles = new HashSet<>();
-
+        
         for (Particle p : universe.getParticles()) {
             if (p.getPosition().getY() > (-Const.L / 10)) {
                 particles.add(p);
             } else {
+            	caudalTimes.add(elapsedTime);
                 addFallenParticles(p, particles);
             }
         }
-
+        
         return particles;
     }
 
