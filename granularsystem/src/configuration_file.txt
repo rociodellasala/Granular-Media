@@ -8,11 +8,11 @@ quantity = 40
 fillingPercentage = 0.30
 interactionRadio = 0.015
 D = 0
-L = 1.30
-W = 0.40
+L = 1.00
+W = 0.30
 
 # SIMULATION MODIFIERS
 deltaT = 0.00003
-deltaT2 = 0.3
-totalTime = 320
+deltaT2 = 1
+totalTime = 20
 

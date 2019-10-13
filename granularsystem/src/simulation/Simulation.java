@@ -187,14 +187,14 @@ public class Simulation {
             universe.setParticles(integrationMethod.integrate(universe.getParticles()));
             universe.setNewParticles(removeFallenParticles());
             elapsedTime += deltaT;
-        } while (isConditionNotComplete(elapsedTime, kineticE));
+        } while (isConditionNotComplete(elapsedTime));
 
 
         OvitoGenerator.generateKineticInput(kineticEnergy);
     }
 
-    private boolean isConditionNotComplete(double elapsedTime, double kineticEnergy) {
-        return (elapsedTime <= time || kineticEnergy > Math.pow(10, -9));
+    private boolean isConditionNotComplete(double elapsedTime) {
+        return (elapsedTime <= time);
     }
 
 
