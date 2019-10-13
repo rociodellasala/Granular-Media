@@ -25,6 +25,7 @@ public class OvitoGenerator {
 
     public static void closeFiles() {
         closeWriter(dataWriter);
+        closeWriter(kineticWriter);
     }
 
     public static void recopilateData(Simulation simulation) {
@@ -105,17 +106,29 @@ public class OvitoGenerator {
     }
 
     public static void generateKineticInput(List<double[]> data) {
-         DecimalFormat df = new DecimalFormat("####.########");
-        try {
-            kineticWriter.write(data.size() + "\n");
-            kineticWriter.write("\\ElapsedTime" + "\t" + "TotalKineticEnergy" + "\n");
-
-            for (double d[] : data) {
-                kineticWriter.write(df.format(d[0]) + "\t" + d[1] + "\n");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        
+    	
+    	
+    	for(double d[]: data) {
+			try {
+				kineticWriter.write(d[0] + ",");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		try {
+			kineticWriter.write("\n");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		for(double d[]: data) {
+			try {
+				kineticWriter.write(d[1] + ",");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
     }
 
 

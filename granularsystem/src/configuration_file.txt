@@ -3,9 +3,9 @@
 # MODIFIERS
 
 # UNIVERSE MODIFIERS
-quantityMethod = maxd
+quantityMethod = max
 quantity = 40
-fillingPercentage = 0.30
+fillingPercentage = 0.35
 interactionRadio = 0.015
 D = 0
 L = 1.00
@@ -14,5 +14,5 @@ W = 0.30
 # SIMULATION MODIFIERS
 deltaT = 0.00003
 deltaT2 = 1
-totalTime = 20
+totalTime = 120
 
