@@ -147,25 +147,41 @@ public class OvitoGenerator {
 			}
 		}
     	
-    	caudalTimes = applyQFormula(caudalTimes);
+    	List<double[]> caudal = applyQFormula(caudalTimes);
     	
-    	for(double d: caudalTimes) {
+    	for(double d[]: caudal) {
 			try {
-				caudalWriter.write(d + ",");
+				caudalWriter.write(d[0] + ",");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
-		
+    	
+    	try {
+    		caudalWriter.write("\n");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    	
+    	for(double d[]: caudal) {
+			try {
+				caudalWriter.write(d[1] + ",");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
     }
     
-    private static List<Double> applyQFormula(List<Double> caudalTimes) {
-    	List<Double> q = new LinkedList<>();
+    private static List<double[]> applyQFormula(List<Double> caudalTimes) {
+    	List<double[]> q = new LinkedList<>();
     	int N = 10;
     	int caudalTimesSize = caudalTimes.size();
-    	
+    
     	for(int i = 0; i < caudalTimes.size() && i + 9 < caudalTimesSize; i += 10) {
-    		q.add(N/(caudalTimes.get(i + 9) - caudalTimes.get(i)));
+    		double mediaTime = caudalTimes.get((i+9)/2);
+    		double Q = (N/(caudalTimes.get(i + 9) - caudalTimes.get(i)));
+    		double[] current = {mediaTime, Q};
+    		q.add(current);
     	}
     	
     	return q;
