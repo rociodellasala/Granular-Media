@@ -17,12 +17,13 @@ public class ForceCalculator {
         double forceX = 0;
         double forceY = 0;
         double normalForce, tangencialForce;
+        double totalFn = 0;
 
         for (Particle neighbour : neighbours) {
             if (!p.equals(neighbour)) {
                 overlap = overlapping(p, neighbour);
 
-                if (overlap > 0) { //TODO: > o >= ???? DUDA
+                if (overlap > 0) { 
                     distance = neighbour.getDistance(p);
                     xDistanceFraction = (neighbour.getPosition().getX() - p.getPosition().getX()) / distance;
                     yDistanceFraction = (neighbour.getPosition().getY() - p.getPosition().getY()) / distance;
@@ -33,12 +34,15 @@ public class ForceCalculator {
                     normalForce = -Const.kn * overlap;
                     tangencialForce = -Const.kt * overlap * relativeVelocity.multiplyByVector(tangencialVector);
 
+                    totalFn += normalForce;
+                    
                     forceX += normalForce * xDistanceFraction + tangencialForce * (-yDistanceFraction);
                     forceY += normalForce * yDistanceFraction + tangencialForce * xDistanceFraction;
                 }
             }
         }
 
+        p.setNormalForce(totalFn);
         force = force.add(new Vector2D(forceX, forceY));
         force = force.add(calculateForceFromWalls(force, p));
 
