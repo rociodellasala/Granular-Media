@@ -180,6 +180,7 @@ public class Simulation {
                 elapsedDeltaT2 = elapsedTime + deltaT2;
                 System.out.println("Elapsed time: " + elapsedTime);
                 kineticE = getEnergy(universe.getParticles());
+                System.out.println(kineticE);
                 double[] current = {elapsedTime, kineticE};
                 kineticEnergy.add(current);
             }

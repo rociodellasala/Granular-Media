@@ -3,16 +3,16 @@
 # MODIFIERS
 
 # UNIVERSE MODIFIERS
-quantityMethod = max
-quantity = 40
-fillingPercentage = 0.35
+quantityMethod = mafx
+quantity = 100
+fillingPercentage = 0.95
 interactionRadio = 0.015
 D = 0
-L = 1.00
-W = 0.30
+L = 1.40
+W = 0.35
 
 # SIMULATION MODIFIERS
-deltaT = 0.00003
-deltaT2 = 1
-totalTime = 120
+deltaT = 0.00001
+deltaT2 = 0.01
+totalTime = 10
 

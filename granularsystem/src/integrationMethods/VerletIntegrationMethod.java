@@ -79,7 +79,7 @@ public class VerletIntegrationMethod implements IntegrationMethod {
         Vector2D previousR = p.getPreviousPosition();
 
         nextPosition = currentR.multiplyByScalar(2).subtract(previousR).add(currentF
-                .multiplyByScalar((deltaT * deltaT) / 2 * p.getMass()));
+                .multiplyByScalar((deltaT * deltaT) / p.getMass()));
 
         p.setNextPosition(nextPosition);
     }

@@ -49,8 +49,8 @@ public class OvitoGenerator {
             id = p.getID();
             x = p.getPosition().getX();
             y = p.getPosition().getY();
-            vx = p.getPosition().getX();
-            vy = p.getPosition().getY();
+            vx = p.getSpeed().getX();
+            vy = p.getSpeed().getY();
             ra = p.getRadius();
 
             double[] currentParticle = {id, x, y, vx, vy, ra};
