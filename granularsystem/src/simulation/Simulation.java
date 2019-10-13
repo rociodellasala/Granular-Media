@@ -181,6 +181,7 @@ public class Simulation {
                 elapsedDeltaT2 = elapsedTime + deltaT2;
                 System.out.println("Elapsed time: " + elapsedTime);
                 kineticE = getEnergy(universe.getParticles());
+                System.out.println(kineticE);
                 double[] current = {elapsedTime, kineticE};
                 kineticEnergy.add(current);
             }
@@ -188,15 +189,15 @@ public class Simulation {
             universe.setParticles(integrationMethod.integrate(universe.getParticles()));
             universe.setNewParticles(removeFallenParticles(caudalTimes, elapsedTime));
             elapsedTime += deltaT;
-        } while (isConditionNotComplete(elapsedTime));
+        } while (isConditionNotComplete(elapsedTime, kineticE));
 
 
         OvitoGenerator.generateKineticOutput(kineticEnergy);
         OvitoGenerator.generateCaudalOutput(caudalTimes);
     }
 
-    private boolean isConditionNotComplete(double elapsedTime) {
-        return (elapsedTime <= time);
+    private boolean isConditionNotComplete(double elapsedTime, double kineticEnergy) {
+        return (elapsedTime <= time && (elapsedTime < 0.5 || kineticEnergy > 1e-5));
     }
 
 
