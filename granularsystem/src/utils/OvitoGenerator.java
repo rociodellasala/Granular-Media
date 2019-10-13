@@ -9,23 +9,32 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 public class OvitoGenerator {
-    private static FileWriter dataWriter;
+    private static FileWriter ovitoWriter;
     private static FileWriter kineticWriter;
+    private static FileWriter caudalWriter;
+    private static FileWriter caudalTimesWriter;
 
     public static void initializeOvito() {
-        File data = createFile("./data.txt");
+        File data = createFile("./ovito.txt");
         File kineticEnergy = createFile("./kineticEnergy.txt");
-        dataWriter = openWriter(data);
+        File caudal = createFile("./caudal.txt");
+        File auxiliar = createFile("./caudalTimes.txt");
+        ovitoWriter = openWriter(data);
         kineticWriter = openWriter(kineticEnergy);
+        caudalWriter = openWriter(caudal);
+        caudalTimesWriter = openWriter(auxiliar);
     }
 
     public static void closeFiles() {
-        closeWriter(dataWriter);
+        closeWriter(ovitoWriter);
         closeWriter(kineticWriter);
+        closeWriter(caudalWriter);
+        closeWriter(caudalTimesWriter);
     }
 
     public static void recopilateData(Simulation simulation) {
@@ -35,7 +44,7 @@ public class OvitoGenerator {
         for (Particle p : simulation.getUniverse().getWalls())
             walls.add(p);
         recopilateParticlesData(walls, data);
-        generateInput(data);
+        generateOutput(data);
     }
 
 
@@ -89,15 +98,15 @@ public class OvitoGenerator {
         }
     }
 
-    private static void generateInput(List<double[]> list) {
+    private static void generateOutput(List<double[]> list) {
 
         try {
-            dataWriter.write(list.size() + "\n");
-            dataWriter.write("\\ID" + "\t" + "X" + "\t" + "Y" + "\t" + "Vx" + "\t" + "Vy" + "\t" +
+        	ovitoWriter.write(list.size() + "\n");
+            ovitoWriter.write("\\ID" + "\t" + "X" + "\t" + "Y" + "\t" + "Vx" + "\t" + "Vy" + "\t" +
                     "Radius" + "\n");
 
             for (double[] d : list) {
-                dataWriter.write((int) d[0] + "\t" + d[1] + "\t" + d[2] + "\t" + d[3] + "\t" + d[4] +
+                ovitoWriter.write((int) d[0] + "\t" + d[1] + "\t" + d[2] + "\t" + d[3] + "\t" + d[4] +
                         "\t" + d[5] + "\n");
             }
         } catch (IOException e) {
@@ -105,10 +114,7 @@ public class OvitoGenerator {
         }
     }
 
-    public static void generateKineticInput(List<double[]> data) {
-        
-    	
-    	
+    public static void generateKineticOutput(List<double[]> data) {
     	for(double d[]: data) {
 			try {
 				kineticWriter.write(d[0] + ",");
@@ -129,6 +135,40 @@ public class OvitoGenerator {
 				e.printStackTrace();
 			}
 		}
+    }
+    
+    public static void generateCaudalOutput(List<Double> caudalTimes) {
+    	
+    	for(double d: caudalTimes) {
+			try {
+				caudalTimesWriter.write(d + ",");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+    	
+    	caudalTimes = applyQFormula(caudalTimes);
+    	
+    	for(double d: caudalTimes) {
+			try {
+				caudalWriter.write(d + ",");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+    }
+    
+    private static List<Double> applyQFormula(List<Double> caudalTimes) {
+    	List<Double> q = new LinkedList<>();
+    	int N = 10;
+    	int caudalTimesSize = caudalTimes.size();
+    	
+    	for(int i = 0; i < caudalTimes.size() && i + 9 < caudalTimesSize; i += 10) {
+    		q.add(N/(caudalTimes.get(i + 9) - caudalTimes.get(i)));
+    	}
+    	
+    	return q;
     }
 
 
