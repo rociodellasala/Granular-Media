@@ -7,12 +7,12 @@ quantityMethod = max
 quantity = 100
 fillingPercentage = 0.70
 interactionRadio = 0.015
-D = 0.18
+D = 0.23
 L = 1.40
-W = 0.35
+W = 0.40
 
 # SIMULATION MODIFIERS
 deltaT = 0.00001
 deltaT2 = 0.01
-totalTime = 4
+totalTime = 7
 

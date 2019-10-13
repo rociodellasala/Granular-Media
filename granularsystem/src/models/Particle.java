@@ -20,6 +20,8 @@ public class Particle {
 
     private double mass;
     private double radius;
+    
+    private double normalForce;
 
     public Particle(Vector2D position, double mass, double radius, boolean isWall) {
         this.setPosition(position);
@@ -27,6 +29,7 @@ public class Particle {
         this.setForce(Vector2D.ZERO);
         this.setRadius(radius);
         this.setMass(mass);
+        this.setNormalForce(0);
         if (isWall)
             this.setId(WALL_ID--);
         else
@@ -40,6 +43,7 @@ public class Particle {
         this.setRadius(radius);
         this.setMass(mass);
         this.setId(id);
+        this.setNormalForce(0);
     }
 
     public void setPreviousPosition(Vector2D previousPosition) {
@@ -81,6 +85,10 @@ public class Particle {
     private void setMass(double mass) {
         this.mass = mass;
     }
+    
+    public void setNormalForce(double currentNF) {
+    	this.normalForce = currentNF;
+    }
 
     public Vector2D getPreviousPosition() {
         return previousPosition;
@@ -117,7 +125,10 @@ public class Particle {
     public double getMass() {
         return mass;
     }
-
+    
+    public double getNormalForce() {
+    	return normalForce;
+    }
 
     @Override
     public boolean equals(Object o) {
