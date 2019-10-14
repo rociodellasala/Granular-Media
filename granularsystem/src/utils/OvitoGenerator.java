@@ -179,9 +179,9 @@ public class OvitoGenerator {
     	int N = 10;
     	int caudalTimesSize = caudalTimes.size();
     
-    	for(int i = 0; i < caudalTimes.size() && i + 9 < caudalTimesSize; i += 10) {
-    		double mediaTime = caudalTimes.get((i+9)/2);
-    		double Q = (N/(caudalTimes.get(i + 9) - caudalTimes.get(i)));
+    	for(int i = 0; i < caudalTimes.size() && i + 9 < caudalTimesSize; i += (N-1)) {
+    		double mediaTime = caudalTimes.get(i+((N-1)/2));
+    		double Q = (N/(caudalTimes.get(i + (N-1)) - caudalTimes.get(i)));
     		double[] current = {mediaTime, Q};
     		q.add(current);
     	}
