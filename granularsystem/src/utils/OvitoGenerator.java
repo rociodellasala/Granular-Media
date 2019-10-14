@@ -176,10 +176,10 @@ public class OvitoGenerator {
     
     private static List<double[]> applyQFormula(List<Double> caudalTimes) {
     	List<double[]> q = new LinkedList<>();
-    	int N = 10;
+    	int N = 20;
     	int caudalTimesSize = caudalTimes.size();
     
-    	for(int i = 0; i < caudalTimes.size() && i + 9 < caudalTimesSize; i += (N-1)) {
+    	for(int i = 0; i < caudalTimes.size() && (i+(N-1)) < caudalTimesSize; i += (N-1)) {
     		double mediaTime = caudalTimes.get(i+((N-1)/2));
     		double Q = (N/(caudalTimes.get(i + (N-1)) - caudalTimes.get(i)));
     		double[] current = {mediaTime, Q};
