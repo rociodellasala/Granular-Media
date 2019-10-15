@@ -7,7 +7,7 @@ import integrationMethods.VerletIntegrationMethod;
 import models.Universe;
 import utils.Configuration;
 import utils.Const;
-import utils.OvitoGenerator;
+import utils.OutputGenerator;
 
 public class Main {
 
@@ -32,13 +32,13 @@ public class Main {
 
         simulation = new Simulation(universe, config.getTotalTime(), config.getFillingPercentage(), ig);
 
-        OvitoGenerator.initializeOvito();
+        OutputGenerator.initializeOvito();
 
         System.out.println("Iniciando la simulación del medio granular");
         simulation.startUniverse(config.getQuantityMethod(), config.getQuantity());
         simulation.simulate(config.getDeltaT(), config.getDeltaT2());
 
-        OvitoGenerator.closeFiles();
+        OutputGenerator.closeFiles();
     }
 
     private static void checkParameters(Configuration config) {

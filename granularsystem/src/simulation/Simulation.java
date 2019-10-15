@@ -5,7 +5,7 @@ import models.Particle;
 import models.Universe;
 import models.Vector2D;
 import utils.Const;
-import utils.OvitoGenerator;
+import utils.OutputGenerator;
 
 import java.text.DecimalFormat;
 import java.util.*;
@@ -177,7 +177,7 @@ public class Simulation {
         
         do {
             if (elapsedTime == deltaT || elapsedTime > elapsedDeltaT2) {
-                OvitoGenerator.recopilateData(this);
+                OutputGenerator.recopilateData(this);
                 elapsedDeltaT2 = elapsedTime + deltaT2;
                 System.out.println("Elapsed time: " + elapsedTime);
                 kineticE = getEnergy(universe.getParticles());
@@ -192,8 +192,22 @@ public class Simulation {
         } while (isConditionNotComplete(elapsedTime, kineticE));
 
 
-        OvitoGenerator.generateKineticOutput(kineticEnergy);
-        OvitoGenerator.generateCaudalOutput(caudalTimes);
+        calculatenp();
+        OutputGenerator.generateKineticOutput(kineticEnergy);
+        OutputGenerator.generateCaudalOutput(caudalTimes);
+    }
+    
+    private void calculatenp() {
+    	double percentage = Const.L/8;
+    	int count = 0;
+    	
+    	for(Particle p : universe.getParticles()) {
+    		if(p.getPosition().getY() >= 0 && p.getPosition().getY() <= percentage) {
+    			count++;
+    		}
+    	}
+    	
+    	System.out.println("PARAMETRO NP : " + count);
     }
 
     private boolean isConditionNotComplete(double elapsedTime, double kineticEnergy) {
